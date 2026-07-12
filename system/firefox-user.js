@@ -31,6 +31,13 @@ user_pref("ui.key.menuAccessKeyFocuses", false);
 // their anchor; make sure keyboard focus can never wander into it
 user_pref("browser.toolbars.keyboard_navigation", false);
 
+// kiosk sites served over plain http (a LAN ERP, say) must behave like any
+// other kiosk site: no "connection is not secure" warning dropdown on the
+// login fields, and saved passwords DO autofill (Firefox refuses to autofill
+// on http pages by default -- pointless for a fixed site on a trusted LAN)
+user_pref("security.insecure_field_warning.contextual.enabled", false);
+user_pref("signon.autofillForms.http", true);
+
 // quiet: no update prompts or telemetry
 user_pref("app.update.auto", false);
 user_pref("datareporting.policy.dataSubmissionEnabled", false);

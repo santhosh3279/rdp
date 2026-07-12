@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.8.5 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.8.6 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -394,6 +394,13 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       means that tab's URL is <code>http://</code> or has a certificate
       problem — use <code>https://</code> URLs in <code>KIOSK_URLS</code>
       where possible.</td></tr>
+  <tr><td>On an <code>http://</code> site: “connection is not secure” warning
+      under the login fields, or saved passwords don't autofill</td>
+      <td>Upgrade to v1.8.6+ and press <b>Reset</b>. Firefox warns on login
+      fields of plain-http pages and refuses to autofill saved passwords
+      there; both are now disabled in the kiosk profile so a LAN
+      <code>http://</code> site (a local ERP, say) behaves like any other
+      kiosk site.</td></tr>
   <tr><td>Touch user still sees the mouse pointer when touching the screen</td>
       <td>Upgrade to v1.8.4+ and press <b>Reset</b> on the session. Older
       versions hid the pointer only while it was idle — and every touch moves
