@@ -8,6 +8,11 @@ mkdir -p "$HOME/.kiosk"
 
 xsetroot -solid "${KIOSK_BG:-#1a1a2e}" 2>/dev/null || true
 
+# Snap-packaged Firefox (Ubuntu) cannot read the hidden ~/.Xauthority cookie
+# file, so grant X access by local user identity instead -- without this the
+# browser dies with "Authorization required ... cannot open display"
+xhost +si:localuser:"$(id -un)" >/dev/null 2>&1 || true
+
 # Display :N is mirrored on localhost port 5900+N; the admin app's websocket
 # bridge is the only way in from outside.
 DNUM="${DISPLAY#:}"

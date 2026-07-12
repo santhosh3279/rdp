@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.3.0 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.3.1 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -299,8 +299,13 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <td>Check <code>systemctl status kiosk-admin</code> and
       <code>journalctl -u kiosk-admin -e</code>; confirm the firewall allows 8443.</td></tr>
   <tr><td>User gets a black/empty RDP screen</td>
-      <td>Browser may be starting; check <code>~&lt;user&gt;/.kiosk/browser.log</code>.
+      <td>Browser may be starting (snap Firefox's first launch per user can take
+      up to a minute); check <code>~&lt;user&gt;/.kiosk/browser.log</code>.
       Verify Firefox is installed and the <code>KIOSK_URLS</code> entries are valid.</td></tr>
+  <tr><td>browser.log: “Authorization required … cannot open display”</td>
+      <td>Snap Firefox cannot read <code>~/.Xauthority</code>. Fixed in v1.3.1
+      (the session grants X access via <code>xhost +si:localuser</code>) —
+      upgrade, then log the user out and back in.</td></tr>
   <tr><td>“no active session” on Refresh/Screenshot</td>
       <td>The user has no Xorg process — they disconnected and the session was
       reaped. They simply need to reconnect.</td></tr>

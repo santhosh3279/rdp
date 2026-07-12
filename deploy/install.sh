@@ -28,7 +28,7 @@ echo "-- packages"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
 apt-get install -yq xrdp xorgxrdp openbox x11vnc xdotool imagemagick \
-    x11-xserver-utils novnc python3-venv rsync openssl
+    x11-xserver-utils xdg-utils novnc python3-venv rsync openssl
 apt-get install -yq firefox-esr 2>/dev/null || apt-get install -yq firefox
 
 echo "-- users and groups"
