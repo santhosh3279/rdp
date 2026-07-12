@@ -126,9 +126,11 @@ VERSION              single source of truth for the release version
   desktop). The session script starts x11vnc on `127.0.0.1:5900+display`,
   a minimal openbox, then `exec`s the browser loop.
 - **Self-healing browser**: `kiosk-browser.sh` relaunches Firefox whenever it
-  exits, opening one tab per URL in `KIOSK_URLS`. By default each launch wipes
-  the profile (`KIOSK_FRESH_PROFILE=yes`), so "Reset" also clears
-  cookies/history, restores the full tab set, and clears any wedged state.
+  exits, opening one tab per URL in `KIOSK_URLS`. The profile persists by
+  default (`KIOSK_FRESH_PROFILE=no`), so users **stay signed in to websites**
+  across browser restarts and RDP logins/logouts; set `yes` to wipe it on
+  every launch instead. "Reset" from the console always wipes — clearing
+  cookies/history, restoring the full tab set, and any wedged state.
 - **Saved website logins** (`KIOSK_SAVE_LOGINS=yes`, the default): Firefox
   offers to save passwords for the kiosk sites (the "Save login?" popup shows
   just below the tab strip after signing in), and the launch script carries

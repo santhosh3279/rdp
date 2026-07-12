@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.8.1 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.8.2 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -295,11 +295,12 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
   <tr><td><code>KIOSK_URLS</code></td><td>5 example sites</td>
       <td>The user's tabs: one URL per tab, space-separated, opened left to
       right. The tab strip is the only browser UI users see.</td></tr>
-  <tr><td><code>KIOSK_FRESH_PROFILE</code></td><td>yes</td>
-      <td><code>yes</code>: wipe the browser profile on every (re)start — users
-      must sign in to websites again after every RDP login. <code>no</code>:
-      keep cookies, so users <b>stay signed in to websites</b> across restarts
-      and RDP logins. Admin <b>Reset</b> forces a full wipe either way.</td></tr>
+  <tr><td><code>KIOSK_FRESH_PROFILE</code></td><td>no</td>
+      <td><code>no</code>: keep cookies, so users <b>stay signed in to
+      websites</b> across browser restarts and RDP logins/logouts.
+      <code>yes</code>: wipe the browser profile on every (re)start — users
+      must sign in to websites again after every RDP login. Admin <b>Reset</b>
+      forces a full wipe either way.</td></tr>
   <tr><td><code>KIOSK_SAVE_LOGINS</code></td><td>yes</td>
       <td><code>yes</code>: Firefox offers to save website passwords (the
       “Save login?” popup appears just below the tab strip after signing in),
@@ -386,10 +387,11 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       clears that choice (already-saved logins are kept).</td></tr>
   <tr><td>Websites ask for their password again after every RDP login</td>
       <td>Website sessions live in cookies, and <code>KIOSK_FRESH_PROFILE=yes</code>
-      (the default) wipes them on every browser start. Set
-      <code>KIOSK_FRESH_PROFILE="no"</code> in <code>/etc/kiosk/kiosk.conf</code>
-      to keep users signed in; the <b>Reset</b> button still wipes everything
-      when needed.</td></tr>
+      wipes them on every browser start. Since v1.8.2 the default is
+      <code>no</code> (users stay signed in) — but upgrades never touch an
+      existing <code>/etc/kiosk/kiosk.conf</code>, so on older installs set
+      <code>KIOSK_FRESH_PROFILE="no"</code> there yourself. The <b>Reset</b>
+      button still wipes everything when needed.</td></tr>
   <tr><td>NumLock appears inverted (LED on = keypad acts off)</td>
       <td>The RDP client and the session start out of sync. Since v1.3.4 the
       session pins NumLock on at login (<code>KIOSK_NUMLOCK</code>). If it
