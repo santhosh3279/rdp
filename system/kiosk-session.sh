@@ -13,6 +13,14 @@ xsetroot -solid "${KIOSK_BG:-#1a1a2e}" 2>/dev/null || true
 # browser dies with "Authorization required ... cannot open display"
 xhost +si:localuser:"$(id -un)" >/dev/null 2>&1 || true
 
+# The X session's NumLock state starts out of sync with the RDP client's
+# (the keyboard LED shows the opposite of what the session believes).
+# Pin it to a known state; kiosk keypads want it on.
+case "${KIOSK_NUMLOCK:-on}" in
+    on)  numlockx on  2>/dev/null || true ;;
+    off) numlockx off 2>/dev/null || true ;;
+esac
+
 # Display :N is mirrored on localhost port 5900+N; the admin app's websocket
 # bridge is the only way in from outside.
 DNUM="${DISPLAY#:}"

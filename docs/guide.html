@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.3.3 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.3.4 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -275,6 +275,11 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <td>Seconds before relaunching a closed/crashed browser</td></tr>
   <tr><td><code>KIOSK_BG</code></td><td>#1a1a2e</td>
       <td>Desktop color visible briefly before the browser starts</td></tr>
+  <tr><td><code>KIOSK_NUMLOCK</code></td><td>on</td>
+      <td>NumLock state inside the session at login: <code>on</code>,
+      <code>off</code>, or <code>leave</code>. RDP starts the session out of
+      sync with the client keyboard, making NumLock appear inverted; pinning
+      it avoids that.</td></tr>
 </table>
 <h2>Other locations</h2>
 <table>
@@ -324,6 +329,10 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <td>Reconnects with a different color depth create a second session. Set
       <code>Policy=Default</code> and <code>KillDisconnected=false</code> in
       <code>/etc/xrdp/sesman.ini</code>, restart xrdp off-hours.</td></tr>
+  <tr><td>NumLock appears inverted (LED on = keypad acts off)</td>
+      <td>The RDP client and the session start out of sync. Since v1.3.4 the
+      session pins NumLock on at login (<code>KIOSK_NUMLOCK</code>). If it
+      drifts mid-session, pressing NumLock twice resyncs it.</td></tr>
   <tr><td>Wrong admin password / lost password</td>
       <td><code>sudo kiosk-admin-passwd</code> — effective immediately.</td></tr>
   <tr><td>Tab list change not visible</td>
