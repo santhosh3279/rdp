@@ -96,7 +96,8 @@ function sessionCard(s) {
   card.className = "card";
   card.innerHTML = `
     <a class="shot" href="/viewer.html?user=${encodeURIComponent(s.user)}" target="_blank" title="Open live view">
-      <img alt="screen of ${s.user}" loading="lazy">
+      <span class="shot-user">${s.user}</span>
+      <span class="badge on">online</span>
       <span class="shot-hint">click to view &amp; control</span>
     </a>
     <div class="meta">
@@ -110,8 +111,6 @@ function sessionCard(s) {
       <button data-act="restart-browser" title="Kill &amp; relaunch the browser with a clean profile">Reset</button>
       <button data-act="logout" class="danger" title="Terminate this RDP session">Logout</button>
     </div>`;
-  card.querySelector("img").src =
-    `/api/sessions/${encodeURIComponent(s.user)}/screenshot?t=${Date.now()}`;
   card.querySelectorAll("button[data-act]").forEach((btn) => {
     btn.addEventListener("click", () => sessionAction(s.user, btn.dataset.act, btn));
   });

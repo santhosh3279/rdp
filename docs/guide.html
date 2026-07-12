@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.8.2 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.8.3 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -102,7 +102,7 @@ browser crashes or is closed, it restarts by itself within seconds.
 </p>
 <p>Administrators manage everything from a web console:</p>
 <ul>
-  <li><b>Live dashboard</b> — every logged-in user with an auto-updating screenshot of their screen</li>
+  <li><b>Live dashboard</b> — every logged-in user shown online, one click from a live view of their screen</li>
   <li><b>Screen mirroring &amp; remote control</b> — click any session to watch it live or take over mouse and keyboard (noVNC), with a “view only” toggle</li>
   <li><b>Hard refresh</b> — send Ctrl+Shift+R to a user's browser remotely</li>
   <li><b>Browser reset</b> — kill and relaunch a user's browser with a clean profile (clears cookies, history, and any wedged state)</li>
@@ -180,9 +180,11 @@ sudo ufw allow 8443/tcp    # admin console</pre></li>
 <h1>4. Using the admin console</h1>
 
 <h2>4.1 Dashboard</h2>
-<p>The main page shows one card per active RDP session with the username,
-display number, session uptime, a green/red dot for browser health, and a
-screenshot that refreshes automatically every few seconds.</p>
+<p>The main page shows one card per active RDP session with the username, an
+<b>online</b> badge, display number, session uptime, and a green/red dot for
+browser health. Cards deliberately show no live preview — that keeps the
+dashboard nearly free of bandwidth and server load even with many sessions;
+click a card whenever you want to see the actual screen.</p>
 <table>
   <tr><th>Button</th><th>What it does</th><th>When to use it</th></tr>
   <tr><td><b>Refresh</b></td><td>Sends Ctrl+Shift+R to the user's browser
@@ -199,7 +201,7 @@ screenshot that refreshes automatically every few seconds.</p>
 
 <h2>4.2 Screen mirroring &amp; remote control</h2>
 <ol>
-  <li>Click a session's screenshot (or open it in a new tab). The live viewer connects
+  <li>Click a session card (or open it in a new tab). The live viewer connects
       in about a second.</li>
   <li>By default <b>you control the session</b>: your mouse and keyboard act on
       the user's screen — ideal for guided support.</li>

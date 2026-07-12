@@ -79,12 +79,17 @@ button.ghost { background: transparent; }
   overflow: hidden;
 }
 
+/* no live thumbnails: sessions show as a plain "online" tile (saves the
+   bandwidth + server CPU of polling screenshots); click opens the live view */
 .shot {
-  display: block; position: relative;
-  aspect-ratio: 16 / 10;
-  background: #000;
+  display: flex; position: relative;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: .5rem;
+  aspect-ratio: 16 / 7;
+  background: linear-gradient(160deg, #101024, #1c1c38);
+  text-decoration: none;
 }
-.shot img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.shot-user { font-size: 1.3rem; font-weight: 600; color: #e8e8f4; }
 .shot-hint {
   position: absolute; inset: auto 0 0 0;
   padding: .3rem;

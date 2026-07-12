@@ -7,7 +7,8 @@ Turns an Ubuntu/Debian machine into a multi-user RDP kiosk server:
   the *only* visible UI: no address bar, no menus, no settings, no devtools,
   no downloads.
 - Admins open the **web console (https://server:8443)** to:
-  - see every logged-in session with **live screenshots**
+  - see every logged-in session at a glance (lightweight "online" cards —
+    no screenshot polling, so the dashboard costs almost no bandwidth)
   - **mirror and control** any user's screen in the browser (noVNC)
   - **hard-refresh** a user's page (Ctrl+Shift+R) or **reset** their browser
     (kill + relaunch with a clean profile)
@@ -165,7 +166,8 @@ VERSION              single source of truth for the release version
   browser and lets the loop respawn it clean — it always wipes the profile,
   even with `KIOSK_FRESH_PROFILE=no` (persistent website logins), via a
   force-fresh flag dropped by `kiosk-ctl`.
-- **Mirroring**: the dashboard polls PNG screenshots (ImageMagick `import`);
+- **Mirroring**: session cards are plain "online" tiles (no screenshot
+  polling — bandwidth and server CPU stay flat as sessions grow);
   clicking a card opens the noVNC viewer, which speaks RFB over
   `/ws/vnc/<user>` — a websocket↔TCP bridge inside the app, protected by the
   same login cookie. A "view only" toggle switches between watching and
