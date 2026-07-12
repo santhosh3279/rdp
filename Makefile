@@ -7,6 +7,7 @@ install:
 # Upgrading IS reinstalling: unpack the new version over this directory
 # (or git pull) and run make upgrade. Configs and live sessions survive.
 upgrade: install
+update: install
 
 uninstall:
 	sudo bash deploy/uninstall.sh
@@ -27,4 +28,4 @@ pdf:
 	    --footer-center '[page] / [topage]' --footer-font-size 8 --footer-spacing 6 \
 	    docs/guide.html docs/kiosk-admin-guide.pdf
 
-.PHONY: install upgrade uninstall purge package pdf
+.PHONY: install upgrade update uninstall purge package pdf
