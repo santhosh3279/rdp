@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.4.0 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.5.0 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -282,6 +282,11 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <code>off</code>, or <code>leave</code>. RDP starts the session out of
       sync with the client keyboard, making NumLock appear inverted; pinning
       it avoids that.</td></tr>
+  <tr><td><code>KIOSK_TOUCH_MODE</code></td><td>no</td>
+      <td><code>yes</code>: touch-screen mode — the mouse pointer is hidden on
+      the kiosk screen, Firefox gets touch-friendly input handling and pinch
+      zoom, and the tab strip grows to finger size. Admin mirroring still
+      works normally (the admin sees their own local cursor in the viewer).</td></tr>
 </table>
 <h2>Other locations</h2>
 <table>

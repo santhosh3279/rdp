@@ -77,6 +77,21 @@ EOF
     else
         echo 'user_pref("signon.rememberSignons", false);' >>"$PROFILE/user.js"
     fi
+    if [ "${KIOSK_TOUCH_MODE:-no}" = "yes" ]; then
+        cat >>"$PROFILE/chrome/userChrome.css" <<'EOF'
+
+/* generated: touch mode -- finger-sized tab strip */
+.tabbrowser-tab {
+    min-height: 44px !important;
+}
+.tab-close-button {
+    width: 28px !important;
+    height: 28px !important;
+}
+EOF
+        echo 'user_pref("apz.allow_zooming", true);' >>"$PROFILE/user.js"
+        echo 'user_pref("dom.w3c_touch_events.enabled", 1);' >>"$PROFILE/user.js"
+    fi
 }
 
 while true; do

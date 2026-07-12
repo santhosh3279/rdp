@@ -21,6 +21,15 @@ case "${KIOSK_NUMLOCK:-on}" in
     off) numlockx off 2>/dev/null || true ;;
 esac
 
+if [ "${KIOSK_TOUCH_MODE:-no}" = "yes" ]; then
+    # touch input handling in Firefox (inherited by the browser loop)
+    export MOZ_USE_XINPUT2=1
+    # hide the mouse pointer on the kiosk screen; unclutter-xfixes syntax
+    # first, classic unclutter as fallback
+    unclutter --timeout 0 --start-hidden --fork 2>/dev/null \
+        || unclutter -idle 0 -root >/dev/null 2>&1 &
+fi
+
 # Display :N is mirrored on localhost port 5900+N; the admin app's websocket
 # bridge is the only way in from outside.
 DNUM="${DISPLAY#:}"
