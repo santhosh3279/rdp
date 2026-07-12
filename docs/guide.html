@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.3.2 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.3.3 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -315,8 +315,11 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <td>The user has no Xorg process — they disconnected and the session was
       reaped. They simply need to reconnect.</td></tr>
   <tr><td>Live viewer says “connection lost”</td>
-      <td>Your console login expired (sign in again on the dashboard) or the
-      session ended. x11vnc log: <code>~&lt;user&gt;/.kiosk/x11vnc.log</code>.</td></tr>
+      <td>Upgrade to v1.3.3+ first (older versions had a websocket handshake bug
+      that broke the viewer with modern noVNC). Otherwise: console login expired
+      (sign in again on the dashboard) or the session ended. Server log:
+      <code>journalctl -u kiosk-admin</code>; x11vnc log:
+      <code>~&lt;user&gt;/.kiosk/x11vnc.log</code>.</td></tr>
   <tr><td>Duplicate sessions for one user</td>
       <td>Reconnects with a different color depth create a second session. Set
       <code>Policy=Default</code> and <code>KillDisconnected=false</code> in

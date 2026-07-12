@@ -13,9 +13,31 @@ function setStatus(text, ok) {
   el.className = ok ? "ok" : "bad";
 }
 
-function connect() {
+async function connect() {
   $("#btn-reconnect").classList.add("hidden");
   setStatus("connecting…", true);
+
+  // diagnose before dialing so failures get a precise message
+  let sessions;
+  try {
+    const res = await fetch("/api/sessions");
+    if (res.status === 401) {
+      setStatus("not signed in — sign in on the dashboard, then reload this page", false);
+      $("#btn-reconnect").classList.remove("hidden");
+      return;
+    }
+    sessions = await res.json();
+  } catch (e) {
+    setStatus("admin service unreachable", false);
+    $("#btn-reconnect").classList.remove("hidden");
+    return;
+  }
+  if (!sessions.some((s) => s.user === user)) {
+    setStatus(`${user} has no active RDP session`, false);
+    $("#btn-reconnect").classList.remove("hidden");
+    return;
+  }
+
   const scheme = location.protocol === "https:" ? "wss" : "ws";
   rfb = new RFB($("#screen"), `${scheme}://${location.host}/ws/vnc/${encodeURIComponent(user)}`);
   rfb.scaleViewport = true;
@@ -23,7 +45,9 @@ function connect() {
 
   rfb.addEventListener("connect", () => setStatus("connected — you control this screen", true));
   rfb.addEventListener("disconnect", (e) => {
-    setStatus(e.detail.clean ? "disconnected" : "connection lost (not logged in, or session ended)", false);
+    setStatus(e.detail.clean
+      ? "disconnected"
+      : "connection lost — session may have ended (server log: journalctl -u kiosk-admin)", false);
     $("#btn-reconnect").classList.remove("hidden");
   });
 }
