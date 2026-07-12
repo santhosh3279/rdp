@@ -147,9 +147,12 @@ VERSION              single source of truth for the release version
   the screen and nothing else is reachable. Firefox enterprise policies
   additionally disable devtools, private browsing, about:config, and password
   saving.
-- **Touch-screen mode**: hides the mouse pointer on the kiosk screen
-  (unclutter), enables Firefox touch input handling (`MOZ_USE_XINPUT2`, touch
-  events, pinch zoom), and enlarges the tab strip to finger size. Enabled
+- **Touch-screen mode**: hides the mouse pointer on the kiosk screen with a
+  fully **transparent cursor theme** — invisible even while the pointer moves
+  (idle-hiders like unclutter flash the cursor on every tap; unclutter still
+  runs as a fallback), enables Firefox touch input handling
+  (`MOZ_USE_XINPUT2`, touch events, pinch zoom), and enlarges the tab strip
+  to finger size. Enabled
   globally (`KIOSK_TOUCH_MODE=yes`) or per user via the "Touch screen"
   checkbox in the console or the live viewer's toolbar (= `kiosktouch` group
   membership). Touch state is re-evaluated on every browser launch, so a

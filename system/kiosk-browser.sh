@@ -25,13 +25,17 @@ apply_touch() {
     if [ "$TOUCH" = "yes" ]; then
         # touch input handling in Firefox
         export MOZ_USE_XINPUT2=1
-        # hide the mouse pointer; unclutter-xfixes syntax first, classic fallback
+        # invisible pointer: a fully transparent cursor THEME, so the pointer
+        # stays hidden even while it moves (each touch moves it -- idle-based
+        # hiders like unclutter would flash it on every tap, esp. over RDP)
+        export XCURSOR_THEME=kiosk-transparent
+        # belt and braces: also hide the idle pointer outside the browser
         if ! pgrep -u "$USER_NAME" -x unclutter >/dev/null 2>&1; then
             unclutter --timeout 0 --start-hidden --fork 2>/dev/null \
                 || unclutter -idle 0 -root >/dev/null 2>&1 &
         fi
     else
-        unset MOZ_USE_XINPUT2
+        unset MOZ_USE_XINPUT2 XCURSOR_THEME
         pkill -u "$USER_NAME" -x unclutter 2>/dev/null || true
     fi
 }

@@ -42,6 +42,14 @@ if compgen -G "$SRC/system/fonts/*.ttf" >/dev/null || compgen -G "$SRC/system/fo
     chmod 644 /usr/local/share/fonts/kiosk-admin/*
     fc-cache -f /usr/local/share/fonts/kiosk-admin >/dev/null
 fi
+
+echo "-- transparent cursor theme (touch-screen mode)"
+# an always-invisible pointer for touch users: idle-hiders (unclutter) unhide
+# the cursor on every touch, so touch mode instead switches the cursor THEME
+# to fully transparent images -- invisible even while moving, incl. over RDP
+rm -rf /usr/share/icons/kiosk-transparent
+cp -a "$SRC/system/xcursor-transparent" /usr/share/icons/kiosk-transparent
+
 apt-get install -yq firefox-esr 2>/dev/null || apt-get install -yq firefox
 
 echo "-- users and groups"

@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.8.3 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.8.4 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -387,6 +387,12 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       the session, sign in to the site again, and the popup appears just below
       the tab strip. If a user once tapped “Never save”, a <b>Reset</b> also
       clears that choice (already-saved logins are kept).</td></tr>
+  <tr><td>Touch user still sees the mouse pointer when touching the screen</td>
+      <td>Upgrade to v1.8.4+ and press <b>Reset</b> on the session. Older
+      versions hid the pointer only while it was idle — and every touch moves
+      the pointer, un-hiding it at exactly the wrong moment. Touch mode now
+      switches the session to a fully transparent cursor theme, so the pointer
+      is invisible even while moving (including over RDP).</td></tr>
   <tr><td>Websites ask for their password again after every RDP login</td>
       <td>Website sessions live in cookies, and <code>KIOSK_FRESH_PROFILE=yes</code>
       wipes them on every browser start. Since v1.8.2 the default is
