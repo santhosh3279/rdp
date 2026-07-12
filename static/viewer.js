@@ -42,6 +42,9 @@ async function connect() {
   rfb = new RFB($("#screen"), `${scheme}://${location.host}/ws/vnc/${encodeURIComponent(user)}`);
   rfb.scaleViewport = true;
   rfb.viewOnly = $("#viewonly").checked;
+  // touch devices have no hover pointer: show a dot at the remote cursor
+  // position so taps have visible feedback
+  rfb.showDotCursor = $("#touchmode").checked;
 
   rfb.addEventListener("connect", () => setStatus("connected — you control this screen", true));
   rfb.addEventListener("disconnect", (e) => {
@@ -56,6 +59,22 @@ $("#viewonly").addEventListener("change", (e) => {
   if (rfb) rfb.viewOnly = e.target.checked;
 });
 $("#btn-reconnect").addEventListener("click", connect);
+
+/* touch-screen mode for the person mirroring: bigger toolbar targets and a
+   dot cursor. Remembered per browser; defaults to on for touch devices. */
+const touchBox = $("#touchmode");
+const storedTouch = localStorage.getItem("kiosk-viewer-touch");
+touchBox.checked = storedTouch === null ? ("ontouchstart" in window) : storedTouch === "1";
+
+function applyTouch() {
+  document.body.classList.toggle("touch", touchBox.checked);
+  if (rfb) rfb.showDotCursor = touchBox.checked;
+}
+touchBox.addEventListener("change", () => {
+  localStorage.setItem("kiosk-viewer-touch", touchBox.checked ? "1" : "0");
+  applyTouch();
+});
+applyTouch();
 
 function toast(msg, isError = false) {
   const el = $("#toast");

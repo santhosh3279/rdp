@@ -151,16 +151,36 @@ async function loadUsers() {
     tr.innerHTML = `
       <td>${u.username}</td>
       <td><span class="badge ${u.online ? "on" : "off"}">${u.online ? "online" : "offline"}</span></td>
+      <td><label class="muted"><input type="checkbox" data-act="touch" ${u.touch ? "checked" : ""}>
+          ${u.touch ? "touch" : "mouse"}</label></td>
       <td class="right">
         <button data-act="passwd">Set password</button>
         <button data-act="delete" class="danger">Delete</button>
       </td>`;
+    tr.querySelector('[data-act="touch"]')
+      .addEventListener("change", (e) => setTouch(u.username, e.target.checked, e.target));
     tr.querySelector('[data-act="passwd"]')
       .addEventListener("click", () => openModal("kiosk-passwd", u.username));
     tr.querySelector('[data-act="delete"]')
       .addEventListener("click", () => deleteUser(u.username));
     return tr;
   }));
+}
+
+async function setTouch(username, touch, box) {
+  box.disabled = true;
+  try {
+    await api(`/api/users/${encodeURIComponent(username)}/touch`, {
+      method: "POST", body: JSON.stringify({ touch }),
+    });
+    toast(`touch screen ${touch ? "enabled" : "disabled"} for ${username} — applies at their next login`);
+    loadUsers();
+  } catch (err) {
+    toast(err.message, true);
+    box.checked = !touch;
+  } finally {
+    box.disabled = false;
+  }
 }
 
 async function deleteUser(username) {
@@ -228,6 +248,8 @@ function openModal(mode, username = "") {
   $("#modal-username").classList.toggle("hidden", !mode.endsWith("-add"));
   $("#modal-role").classList.toggle("hidden", mode !== "web-add");
   $("#modal-role").value = "viewer";
+  $("#modal-touch-label").classList.toggle("hidden", mode !== "kiosk-add");
+  $("#modal-touch").checked = false;
   $("#modal-password").value = "";
   $("#modal-error").textContent = "";
   $("#modal-overlay").classList.remove("hidden");
@@ -245,8 +267,9 @@ $("#modal-form").addEventListener("submit", async (e) => {
   const role = $("#modal-role").value;
   try {
     if (modalMode === "kiosk-add") {
-      await api("/api/users", { method: "POST", body: JSON.stringify({ username, password }) });
-      toast(`user ${username} created — they can now log in over RDP`);
+      const touch = $("#modal-touch").checked;
+      await api("/api/users", { method: "POST", body: JSON.stringify({ username, password, touch }) });
+      toast(`user ${username} created${touch ? " (touch screen)" : ""} — they can now log in over RDP`);
       loadUsers();
     } else if (modalMode === "kiosk-passwd") {
       await api(`/api/users/${encodeURIComponent(username)}/password`, {

@@ -7,7 +7,7 @@ set -euo pipefail
 KIOSK_GROUP="kioskusers"
 
 usage() {
-    echo "usage: kiosk-ctl refresh|restart-browser|logout|screenshot|adduser|setpass|deluser <user>" >&2
+    echo "usage: kiosk-ctl refresh|restart-browser|logout|screenshot|adduser|setpass|deluser|set-touch <user> [touch|on|off]" >&2
     exit 2
 }
 
@@ -76,8 +76,20 @@ case "$ACTION" in
             exit 5
         fi
         read_password
-        useradd -m -s /bin/bash -G "$KIOSK_GROUP" "$TARGET"
+        groupadd -f kiosktouch
+        ADD_GROUPS="$KIOSK_GROUP"
+        [ "${3:-}" = "touch" ] && ADD_GROUPS="$KIOSK_GROUP,kiosktouch"
+        useradd -m -s /bin/bash -G "$ADD_GROUPS" "$TARGET"
         chpasswd <<< "$TARGET:$PASSWORD"
+        ;;
+    set-touch)
+        require_kiosk_user
+        groupadd -f kiosktouch
+        case "${3:-}" in
+            on)  usermod -aG kiosktouch "$TARGET" ;;
+            off) gpasswd -d "$TARGET" kiosktouch >/dev/null 2>&1 || true ;;
+            *)   usage ;;
+        esac
         ;;
     setpass)
         require_kiosk_user

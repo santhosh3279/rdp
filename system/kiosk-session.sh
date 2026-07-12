@@ -21,7 +21,11 @@ case "${KIOSK_NUMLOCK:-on}" in
     off) numlockx off 2>/dev/null || true ;;
 esac
 
-if [ "${KIOSK_TOUCH_MODE:-no}" = "yes" ]; then
+# touch mode: enabled globally (KIOSK_TOUCH_MODE=yes) or per user via
+# membership in the "kiosktouch" group (the checkbox in the admin console)
+TOUCH="${KIOSK_TOUCH_MODE:-no}"
+id -nG | tr ' ' '\n' | grep -qx kiosktouch && TOUCH="yes"
+if [ "$TOUCH" = "yes" ]; then
     # touch input handling in Firefox (inherited by the browser loop)
     export MOZ_USE_XINPUT2=1
     # hide the mouse pointer on the kiosk screen; unclutter-xfixes syntax

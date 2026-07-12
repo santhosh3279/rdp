@@ -46,6 +46,7 @@ apt-get install -yq firefox-esr 2>/dev/null || apt-get install -yq firefox
 
 echo "-- users and groups"
 groupadd -f kioskusers
+groupadd -f kiosktouch
 if ! id kioskadmin &>/dev/null; then
     useradd -r -M -d /nonexistent -s /usr/sbin/nologin kioskadmin
 fi

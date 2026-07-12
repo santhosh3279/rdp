@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.6.1 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.7.0 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -204,6 +204,10 @@ screenshot that refreshes automatically every few seconds.</p>
   <li>By default <b>you control the session</b>: your mouse and keyboard act on
       the user's screen — ideal for guided support.</li>
   <li>Tick <b>view only</b> in the toolbar to watch without interfering.</li>
+  <li>Tick <b>touch screen</b> if <i>you</i> are mirroring from a touch device:
+      toolbar controls grow to finger size and a dot marks the remote cursor so
+      taps have visible feedback. It defaults to on when a touch device is
+      detected and is remembered per browser.</li>
   <li>The viewer toolbar also has <b>Refresh page</b> and <b>Reset browser</b>
       buttons for the session being viewed.</li>
 </ol>
@@ -212,7 +216,12 @@ mirroring is shared, not exclusive. Both sides see the same screen.</div>
 
 <h2>4.3 Managing users</h2>
 <ul>
-  <li><b>Add:</b> “+ Add user” in the header. The account works for RDP immediately.</li>
+  <li><b>Add:</b> “+ Add user” in the header. The account works for RDP immediately.
+      Tick <b>Touch screen</b> for users on touch terminals: their session hides
+      the mouse pointer and gets finger-sized tabs.</li>
+  <li><b>Touch screen toggle:</b> the checkbox in the <i>Kiosk users</i> table
+      switches an existing user between touch and mouse mode — it applies at
+      their next login.</li>
   <li><b>Set password:</b> per-user button in the <i>Kiosk users</i> table.</li>
   <li><b>Delete:</b> per-user button; logs the user out first, then removes the
       account <b>and its home directory</b>. This cannot be undone.</li>
@@ -302,10 +311,13 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       sync with the client keyboard, making NumLock appear inverted; pinning
       it avoids that.</td></tr>
   <tr><td><code>KIOSK_TOUCH_MODE</code></td><td>no</td>
-      <td><code>yes</code>: touch-screen mode — the mouse pointer is hidden on
-      the kiosk screen, Firefox gets touch-friendly input handling and pinch
-      zoom, and the tab strip grows to finger size. Admin mirroring still
-      works normally (the admin sees their own local cursor in the viewer).</td></tr>
+      <td><code>yes</code>: touch-screen mode for <b>all</b> users — the mouse
+      pointer is hidden on the kiosk screen, Firefox gets touch-friendly input
+      handling and pinch zoom, and the tab strip grows to finger size.
+      Individual users can be switched to touch mode regardless of this
+      setting via the <b>Touch screen</b> checkbox in the console (membership
+      in the <code>kiosktouch</code> group). Admin mirroring still works
+      normally.</td></tr>
 </table>
 <h2>Other locations</h2>
 <table>

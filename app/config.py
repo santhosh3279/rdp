@@ -11,6 +11,7 @@ STATE_DIR = os.environ.get("KIOSK_ADMIN_STATE", "/var/lib/kiosk-admin")
 WEBUSERS_FILE = os.path.join(STATE_DIR, "webusers.json")
 
 KIOSK_GROUP = "kioskusers"
+TOUCH_GROUP = "kiosktouch"
 VNC_BASE_PORT = 5900
 
 COOKIE_NAME = "kiosk_session"

@@ -36,7 +36,7 @@
   <section class="admin-only">
     <h2>Kiosk users</h2>
     <table id="users-table">
-      <thead><tr><th>User</th><th>Status</th><th class="right">Actions</th></tr></thead>
+      <thead><tr><th>User</th><th>Status</th><th>Touch screen</th><th class="right">Actions</th></tr></thead>
       <tbody></tbody>
     </table>
   </section>
@@ -64,6 +64,9 @@
       <option value="viewer">viewer — watch &amp; control screens only</option>
       <option value="admin">admin — full control</option>
     </select>
+    <label id="modal-touch-label" class="muted hidden">
+      <input type="checkbox" id="modal-touch"> Touch screen (hide the mouse pointer for this user)
+    </label>
     <div class="row">
       <button type="submit" class="primary">Save</button>
       <button type="button" id="modal-cancel" class="ghost">Cancel</button>

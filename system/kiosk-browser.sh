@@ -14,6 +14,10 @@ URLS="${KIOSK_URLS:-${KIOSK_URL:-https://example.com}}"
 PROFILE="$HOME/kiosk-profile"
 mkdir -p "$HOME/.kiosk"
 
+# touch mode: global config or per-user "kiosktouch" group membership
+TOUCH="${KIOSK_TOUCH_MODE:-no}"
+id -nG | tr ' ' '\n' | grep -qx kiosktouch && TOUCH="yes"
+
 BROWSER=""
 for c in firefox firefox-esr; do
     if command -v "$c" >/dev/null 2>&1; then
@@ -77,7 +81,7 @@ EOF
     else
         echo 'user_pref("signon.rememberSignons", false);' >>"$PROFILE/user.js"
     fi
-    if [ "${KIOSK_TOUCH_MODE:-no}" = "yes" ]; then
+    if [ "$TOUCH" = "yes" ]; then
         cat >>"$PROFILE/chrome/userChrome.css" <<'EOF'
 
 /* generated: touch mode -- finger-sized tab strip */
