@@ -29,7 +29,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
 apt-get install -yq xrdp xorgxrdp openbox x11vnc xdotool imagemagick \
     x11-xserver-utils novnc python3-venv rsync openssl
-apt-get install -yq chromium-browser 2>/dev/null || apt-get install -yq chromium
+apt-get install -yq firefox-esr 2>/dev/null || apt-get install -yq firefox
 
 echo "-- users and groups"
 groupadd -f kioskusers
@@ -47,15 +47,18 @@ echo "-- kiosk config (preserved on upgrade)"
 mkdir -p /etc/kiosk
 if [[ ! -f /etc/kiosk/kiosk.conf ]]; then
     install -m 644 "$SRC/system/kiosk.conf" /etc/kiosk/kiosk.conf
-    echo "   created /etc/kiosk/kiosk.conf -- set KIOSK_URL there"
+    echo "   created /etc/kiosk/kiosk.conf -- set KIOSK_URLS there"
 fi
 
-echo "-- chromium policies"
-for d in /etc/chromium/policies/managed \
-         /etc/chromium-browser/policies/managed \
-         /etc/opt/chrome/policies/managed; do
+echo "-- browser skin, prefs, policies, window manager config"
+install -m 644 "$SRC/system/userChrome.css"   /etc/kiosk/userChrome.css
+install -m 644 "$SRC/system/firefox-user.js"  /etc/kiosk/firefox-user.js
+install -m 644 "$SRC/system/openbox-rc.xml"   /etc/kiosk/openbox-rc.xml
+for d in /etc/firefox/policies \
+         /usr/lib/firefox-esr/distribution \
+         /usr/lib/firefox/distribution; do
     mkdir -p "$d"
-    install -m 644 "$SRC/system/chromium-policy.json" "$d/kiosk-admin.json"
+    install -m 644 "$SRC/system/firefox-policies.json" "$d/policies.json"
 done
 
 echo "-- xrdp session dispatcher"
@@ -119,5 +122,5 @@ if [[ -n "$ADMIN_PW" ]]; then
 else
     echo "   admin password: unchanged   (reset with: sudo kiosk-admin-passwd)"
 fi
-echo "   kiosk URL     : edit /etc/kiosk/kiosk.conf, then 'Reset' users from the console"
+echo "   kiosk tabs    : edit KIOSK_URLS in /etc/kiosk/kiosk.conf, then 'Reset' users from the console"
 echo "   RDP           : port 3389 -- kiosk users get the locked browser session"

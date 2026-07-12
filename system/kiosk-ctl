@@ -55,7 +55,7 @@ case "$ACTION" in
     restart-browser)
         require_kiosk_user
         # kiosk-browser.sh respawns it with a fresh profile
-        pkill -u "$TARGET" -f -- '--kiosk' || true
+        pkill -u "$TARGET" -f 'kiosk-profile' || true
         ;;
     logout)
         require_kiosk_user

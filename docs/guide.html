@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.0.0 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.1.0 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -93,9 +93,11 @@
 kiosk-admin turns a single Ubuntu/Debian machine into a multi-user
 <b>RDP kiosk server</b>. Users connect with any standard RDP client
 (Windows <i>Remote Desktop</i>, Remmina, FreeRDP, mobile RDP apps) and receive a
-<b>fullscreen Chromium browser locked to one website</b> — no desktop, no settings,
-no developer tools, no downloads. If the browser crashes or is closed, it restarts
-by itself within seconds.
+<b>locked-down browser with a fixed set of tabs — 5 by default</b>. The tab strip
+at the top of the screen is the <b>only</b> visible browser UI: no address bar,
+no menus, no settings, no developer tools, no downloads. Users switch between
+their tabs and nothing more. If the browser crashes or is closed, it restarts by
+itself within seconds.
 </p>
 <p>Administrators manage everything from a web console:</p>
 <ul>
@@ -109,7 +111,7 @@ by itself within seconds.
 
 <h2>Architecture at a glance</h2>
 <pre>RDP clients ──> xrdp ──> per-user Xorg session (:10, :11, ...)
-                              ├──> Chromium --kiosk  (respawn loop = self-healing)
+                              ├──> Firefox, tab-strip-only UI  (respawn loop = self-healing)
                               └──> x11vnc on 127.0.0.1:59&lt;display&gt;  (mirroring)
 
 Admin browser ──> kiosk-admin web console (HTTPS, port 8443)
@@ -128,10 +130,10 @@ are RDP (3389) and the password-protected admin console (8443, TLS).
   <tr><td>Operating system</td><td>Ubuntu 22.04 / 24.04 or Debian 12 (server or desktop)</td></tr>
   <tr><td>Access</td><td>Root (sudo) on the target machine</td></tr>
   <tr><td>Network</td><td>Internet access during install (apt packages); ports 3389 and 8443 reachable by clients</td></tr>
-  <tr><td>Hardware</td><td>Roughly 300–500&nbsp;MB RAM per concurrent kiosk user (Chromium); 2&nbsp;GB + 500&nbsp;MB/user is a safe sizing rule</td></tr>
+  <tr><td>Hardware</td><td>Roughly 400–600&nbsp;MB RAM per concurrent kiosk user (Firefox with 5 tabs); 2&nbsp;GB + 600&nbsp;MB/user is a safe sizing rule</td></tr>
 </table>
 <p>The installer pulls everything else automatically: xrdp, xorgxrdp, openbox,
-x11vnc, xdotool, ImageMagick, noVNC, Chromium, and a private Python environment.</p>
+x11vnc, xdotool, ImageMagick, noVNC, Firefox, and a private Python environment.</p>
 
 <h1>3. Installation</h1>
 <ol>
@@ -152,8 +154,9 @@ You can replace it at any time with <code>sudo kiosk-admin-passwd</code>.</div>
 
 <h2>3.1 First-time setup</h2>
 <ol>
-  <li><b>Set the kiosk website.</b> Edit <code>/etc/kiosk/kiosk.conf</code>:
-<pre>KIOSK_URL="https://your-erp.example.com"</pre>
+  <li><b>Set the kiosk tabs.</b> Edit <code>/etc/kiosk/kiosk.conf</code> —
+      one URL per tab, space-separated, opened left to right (5 by default):
+<pre>KIOSK_URLS="https://erp.example.com https://mail.example.com https://wiki.example.com https://crm.example.com https://reports.example.com"</pre>
       The change applies the next time each user's browser starts — use the
       console's <b>Reset</b> button to apply it to running sessions immediately.</li>
   <li><b>Open the firewall</b> (if enabled) for the two service ports only:
@@ -166,9 +169,10 @@ sudo ufw allow 8443/tcp    # admin console</pre></li>
       (username: lowercase letters, digits, <code>-</code>, <code>_</code>;
       password: minimum 6 characters).</li>
   <li><b>Test the user login:</b> from any PC, open an RDP client, connect to the
-      server's address, and sign in with the new username and password. A fullscreen
-      browser on the kiosk URL should appear — and a new session card should show up
-      on the admin dashboard within a few seconds.</li>
+      server's address, and sign in with the new username and password. The browser
+      should fill the screen with the configured tabs across the top and no other
+      UI — and a new session card should show up on the admin dashboard within a
+      few seconds.</li>
 </ol>
 
 <h1>4. Using the admin console</h1>
@@ -183,8 +187,10 @@ screenshot that refreshes automatically every few seconds.</p>
       (cache-bypassing page reload)</td>
       <td>The page shows stale data or a deployment just went out</td></tr>
   <tr><td><b>Reset</b></td><td>Kills the browser; it relaunches within ~2 seconds
-      with a brand-new profile (cookies, history, and session state wiped)</td>
-      <td>The browser is frozen, logged into the wrong account, or misbehaving</td></tr>
+      with a brand-new profile (cookies, history, and session state wiped) and the
+      full default tab set restored</td>
+      <td>The browser is frozen, logged into the wrong account, tabs were lost,
+      or the tab list in <code>kiosk.conf</code> changed</td></tr>
   <tr><td><b>Logout</b></td><td>Terminates the user's whole RDP session</td>
       <td>Freeing a seat, or ending an abandoned session</td></tr>
 </table>
@@ -252,8 +258,9 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
 <h2>/etc/kiosk/kiosk.conf</h2>
 <table>
   <tr><th>Setting</th><th>Default</th><th>Meaning</th></tr>
-  <tr><td><code>KIOSK_URL</code></td><td>https://example.com</td>
-      <td>The site every kiosk user is locked to</td></tr>
+  <tr><td><code>KIOSK_URLS</code></td><td>5 example sites</td>
+      <td>The user's tabs: one URL per tab, space-separated, opened left to
+      right. The tab strip is the only browser UI users see.</td></tr>
   <tr><td><code>KIOSK_FRESH_PROFILE</code></td><td>yes</td>
       <td><code>yes</code>: wipe the browser profile on every (re)start —
       no history, cookies, or crash-restore prompts. <code>no</code>: keep state.</td></tr>
@@ -286,7 +293,7 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <code>journalctl -u kiosk-admin -e</code>; confirm the firewall allows 8443.</td></tr>
   <tr><td>User gets a black/empty RDP screen</td>
       <td>Browser may be starting; check <code>~&lt;user&gt;/.kiosk/browser.log</code>.
-      Verify Chromium is installed and <code>KIOSK_URL</code> is valid.</td></tr>
+      Verify Firefox is installed and the <code>KIOSK_URLS</code> entries are valid.</td></tr>
   <tr><td>“no active session” on Refresh/Screenshot</td>
       <td>The user has no Xorg process — they disconnected and the session was
       reaped. They simply need to reconnect.</td></tr>
@@ -299,9 +306,12 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <code>/etc/xrdp/sesman.ini</code>, restart xrdp off-hours.</td></tr>
   <tr><td>Wrong admin password / lost password</td>
       <td><code>sudo kiosk-admin-passwd</code> — effective immediately.</td></tr>
-  <tr><td>Kiosk URL change not visible</td>
-      <td>The URL is read at browser start. Press <b>Reset</b> on each session
-      (or wait for the users' next login).</td></tr>
+  <tr><td>Tab list change not visible</td>
+      <td><code>KIOSK_URLS</code> is read at browser start. Press <b>Reset</b> on
+      each session (or wait for the users' next login).</td></tr>
+  <tr><td>A user closed some of their tabs</td>
+      <td>Tab close buttons are hidden, but Ctrl+W still works. Press
+      <b>Reset</b> to restore the full default tab set.</td></tr>
 </table>
 
 </body>

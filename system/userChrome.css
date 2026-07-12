@@ -1,0 +1,16 @@
+/* kiosk: the tab strip is the ONLY browser UI visible.
+ * Hides: address bar, bookmarks bar, window buttons, new-tab (+) button,
+ * tab list dropdown, Firefox View, and per-tab close buttons (users keep
+ * their 5 tabs; the admin console's Reset restores a clean set). */
+
+#nav-bar,
+#PersonalToolbar,
+.titlebar-buttonbox-container,
+.titlebar-spacer,
+#tabs-newtab-button,
+#new-tab-button,
+#alltabs-button,
+#firefox-view-button,
+.tab-close-button {
+    visibility: collapse !important;
+}

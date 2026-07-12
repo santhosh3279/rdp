@@ -2,8 +2,10 @@
 
 Turns an Ubuntu/Debian machine into a multi-user RDP kiosk server:
 
-- Users connect over **RDP (port 3389)** and get a **fullscreen Chromium kiosk**
-  locked to one URL — no desktop, no settings, no devtools, no downloads.
+- Users connect over **RDP (port 3389)** and get a **locked-down browser with a
+  fixed set of tabs (5 by default)** — the tab strip at the top of the screen is
+  the *only* visible UI: no address bar, no menus, no settings, no devtools,
+  no downloads.
 - Admins open the **web console (https://server:8443)** to:
   - see every logged-in session with **live screenshots**
   - **mirror and control** any user's screen in the browser (noVNC)
@@ -16,7 +18,7 @@ Turns an Ubuntu/Debian machine into a multi-user RDP kiosk server:
 
 ```
 RDP clients ──► xrdp ──► per-user Xorg session (:10, :11, …)
-                              ├─► Chromium --kiosk (respawn loop = self-healing)
+                              ├─► Firefox, tab-strip-only UI (respawn loop = self-healing)
                               └─► x11vnc on 127.0.0.1:59<display> (mirroring)
 
 Admin browser ──► kiosk-admin (FastAPI, TLS :8443, runs as "kioskadmin")
@@ -47,9 +49,10 @@ The installer prints the admin console URL and a **generated admin password**
 sudo kiosk-admin-passwd
 ```
 
-Then set the kiosk URL in `/etc/kiosk/kiosk.conf` (`KIOSK_URL=…`), open
-`https://<server>:8443`, and click **+ Add user**. That user can immediately
-log in with any RDP client and lands in the browser kiosk.
+Then set the kiosk tabs in `/etc/kiosk/kiosk.conf` (`KIOSK_URLS="url1 url2 …"`,
+one URL per tab, 5 by default), open `https://<server>:8443`, and click
+**+ Add user**. That user can immediately log in with any RDP client and lands
+in the browser kiosk.
 
 The TLS certificate is self-signed by default (browser warning is expected);
 drop real certs into `/etc/kiosk-admin/certs/{cert.pem,key.pem}` and
@@ -75,8 +78,8 @@ Guaranteed to survive an upgrade untouched:
 | **Live RDP sessions** | xrdp is never restarted by the installer |
 
 What the upgrade replaces: the web app in `/opt/kiosk-admin/`, the scripts in
-`/usr/local/bin/`, `/etc/xrdp/startwm.sh`, Chromium policies, the systemd
-unit, and python dependencies inside the venv. Only the admin console service
+`/usr/local/bin/`, `/etc/xrdp/startwm.sh`, Firefox policies/skin/prefs, the
+systemd unit, and python dependencies inside the venv. Only the admin console service
 restarts (a second or two of downtime for admins; users notice nothing).
 Session scripts take effect on each user's *next* login.
 
@@ -99,7 +102,8 @@ with `sudo userdel -r <name>` (or from the web UI before uninstalling).
 app/                 FastAPI backend (auth, sessions, users, control, VNC bridge)
 static/              Admin UI (dashboard, noVNC viewer) — no build step
 system/              Target-machine pieces: startwm.sh, kiosk session/browser
-                     scripts, kiosk-ctl root helper, kiosk.conf, Chromium policy
+                     scripts, kiosk-ctl root helper, kiosk.conf, Firefox
+                     policies + userChrome.css (tab-strip-only UI), openbox config
 deploy/              install.sh / uninstall.sh, systemd unit, sudoers,
                      kiosk-admin-passwd
 docs/                Installation & user guide: kiosk-admin-guide.pdf
@@ -114,9 +118,17 @@ VERSION              single source of truth for the release version
   are dispatched to `kiosk-session.sh` (everyone else still gets a normal
   desktop). The session script starts x11vnc on `127.0.0.1:5900+display`,
   a minimal openbox, then `exec`s the browser loop.
-- **Self-healing browser**: `kiosk-browser.sh` relaunches Chromium whenever it
-  exits. By default each launch wipes the profile (`KIOSK_FRESH_PROFILE=yes`),
-  so "Reset" also clears cookies/history and any wedged state.
+- **Self-healing browser**: `kiosk-browser.sh` relaunches Firefox whenever it
+  exits, opening one tab per URL in `KIOSK_URLS`. By default each launch wipes
+  the profile (`KIOSK_FRESH_PROFILE=yes`), so "Reset" also clears
+  cookies/history, restores the full tab set, and clears any wedged state.
+- **Tab-strip-only UI**: `userChrome.css` (copied into each profile at launch)
+  collapses the address bar, toolbars, window buttons, the new-tab (+) button,
+  and per-tab close buttons; `firefox-user.js` merges tabs into the titlebar
+  and openbox renders the window undecorated and maximized — so the tabs are
+  the topmost pixels on the screen and nothing else is reachable. Firefox
+  enterprise policies additionally disable devtools, private browsing,
+  about:config, and password saving.
 - **Refresh vs Reset**: *Refresh* injects Ctrl+Shift+R via `xdotool` (run as
   the session user, so X authentication is a non-issue). *Reset* kills the
   browser and lets the loop respawn it clean.
@@ -140,6 +152,10 @@ VERSION              single source of truth for the release version
   `~<user>/.kiosk/{browser.log,x11vnc.log,session.log}`.
 - **Screenshot/refresh fails with "no active session"**: the user has no Xorg
   process — they disconnected and `KillDisconnected` reaped the session.
-- **Snap Chromium** (Ubuntu): works; policies are installed to all three
-  policy directories (`/etc/chromium`, `/etc/chromium-browser`,
-  `/etc/opt/chrome`) so whichever build runs picks them up.
+- **Snap Firefox** (Ubuntu): works; the profile deliberately lives at
+  `~/kiosk-profile` (not a hidden dot-directory, which snap confinement can't
+  read), and policies are installed to `/etc/firefox/policies` plus both
+  `distribution/` directories so deb, esr, and snap builds all pick them up.
+- **Upgrading from v1.0** (single-URL Chromium kiosk): existing
+  `/etc/kiosk/kiosk.conf` files keep working (`KIOSK_URL` = one tab); add a
+  `KIOSK_URLS="…"` line to get the 5-tab layout.

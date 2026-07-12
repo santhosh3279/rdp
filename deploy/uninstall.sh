@@ -20,10 +20,11 @@ rm -f /usr/local/bin/kiosk-session.sh /usr/local/bin/kiosk-browser.sh \
       /usr/local/bin/kiosk-ctl /usr/local/bin/kiosk-admin-passwd
 rm -rf /opt/kiosk-admin
 
-for d in /etc/chromium/policies/managed \
-         /etc/chromium-browser/policies/managed \
-         /etc/opt/chrome/policies/managed; do
-    rm -f "$d/kiosk-admin.json"
+rm -f /etc/kiosk/userChrome.css /etc/kiosk/firefox-user.js /etc/kiosk/openbox-rc.xml
+for d in /etc/firefox/policies \
+         /usr/lib/firefox-esr/distribution \
+         /usr/lib/firefox/distribution; do
+    rm -f "$d/policies.json"
 done
 
 if [[ -f /etc/xrdp/startwm.sh.orig ]]; then

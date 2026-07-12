@@ -16,7 +16,8 @@ x11vnc -display "$DISPLAY" -auth "${XAUTHORITY:-$HOME/.Xauthority}" \
        -localhost -rfbport "$((5900 + DNUM))" -shared -forever -nopw \
        -quiet -bg -o "$HOME/.kiosk/x11vnc.log" 2>/dev/null || true
 
-# Minimal window manager so the browser can go properly fullscreen
-openbox 2>>"$HOME/.kiosk/session.log" &
+# Minimal window manager; kiosk config = all windows undecorated + maximized,
+# so the browser's tab strip sits at the very top of the screen
+openbox --config-file /etc/kiosk/openbox-rc.xml 2>>"$HOME/.kiosk/session.log" &
 
 exec /usr/local/bin/kiosk-browser.sh

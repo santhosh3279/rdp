@@ -30,7 +30,7 @@ def list_sessions() -> list[dict]:
         if len(parts) < 4:
             continue
         user, _pid, etimes, args = parts
-        if "--kiosk" in args:
+        if "kiosk-profile" in args:
             browser_users.add(user)
         m = _XORG_RE.search(args)
         if m and user in members:

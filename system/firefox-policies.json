@@ -1,0 +1,24 @@
+{
+  "policies": {
+    "DisableAppUpdate": true,
+    "DisableDeveloperTools": true,
+    "DisablePrivateBrowsing": true,
+    "DisableProfileImport": true,
+    "DisableSetDesktopBackground": true,
+    "DisableTelemetry": true,
+    "DisableFirefoxAccounts": true,
+    "DisablePocket": true,
+    "DontCheckDefaultBrowser": true,
+    "BlockAboutConfig": true,
+    "BlockAboutProfiles": true,
+    "BlockAboutSupport": true,
+    "BlockAboutAddons": true,
+    "NoDefaultBookmarks": true,
+    "OfferToSaveLogins": false,
+    "PasswordManagerEnabled": false,
+    "PromptForDownloadLocation": false,
+    "DownloadDirectory": "/tmp",
+    "OverrideFirstRunPage": "",
+    "OverridePostUpdatePage": ""
+  }
+}

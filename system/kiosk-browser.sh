@@ -1,37 +1,47 @@
 #!/bin/bash
-# Chromium kiosk loop: respawns the browser whenever it exits or is killed.
-# "Full reset" from the admin console simply kills the browser; this loop
-# brings it back with a fresh profile (when KIOSK_FRESH_PROFILE=yes).
+# Firefox kiosk loop: respawns the browser whenever it exits or is killed.
+# "Reset" from the admin console simply kills the browser; this loop brings
+# it back with a fresh profile (when KIOSK_FRESH_PROFILE=yes).
+#
+# Each URL in KIOSK_URLS opens as one tab. userChrome.css strips the UI down
+# to just the tab strip -- no address bar, no toolbars, no window buttons.
 [ -r /etc/kiosk/kiosk.conf ] && . /etc/kiosk/kiosk.conf
 
-URL="${KIOSK_URL:-https://example.com}"
-PROFILE="$HOME/.kiosk/profile"
+# KIOSK_URL kept for configs written by v1.0
+URLS="${KIOSK_URLS:-${KIOSK_URL:-https://example.com}}"
+
+# NOT a dot-dir: snap-packaged Firefox (Ubuntu) may not read hidden dirs in $HOME
+PROFILE="$HOME/kiosk-profile"
 mkdir -p "$HOME/.kiosk"
 
 BROWSER=""
-for c in chromium chromium-browser google-chrome; do
+for c in firefox firefox-esr; do
     if command -v "$c" >/dev/null 2>&1; then
         BROWSER="$c"
         break
     fi
 done
 if [ -z "$BROWSER" ]; then
-    echo "kiosk: no chromium/chrome binary found" >>"$HOME/.kiosk/browser.log"
+    echo "kiosk: no firefox binary found" >>"$HOME/.kiosk/browser.log"
     sleep 30
     exit 1
 fi
 
+build_profile() {
+    if [ "${KIOSK_FRESH_PROFILE:-yes}" = "yes" ]; then
+        rm -rf "$PROFILE"
+    fi
+    mkdir -p "$PROFILE/chrome"
+    # UI skin + prefs are system-managed: refreshed on every launch so
+    # upgrades to /etc/kiosk/* take effect at the next browser start
+    cp /etc/kiosk/userChrome.css "$PROFILE/chrome/userChrome.css" 2>/dev/null || true
+    cp /etc/kiosk/firefox-user.js "$PROFILE/user.js" 2>/dev/null || true
+}
+
 while true; do
-    [ "${KIOSK_FRESH_PROFILE:-yes}" = "yes" ] && rm -rf "$PROFILE"
-    "$BROWSER" \
-        --kiosk \
-        --no-first-run \
-        --noerrdialogs \
-        --disable-infobars \
-        --disable-session-crashed-bubble \
-        --disable-features=TranslateUI \
-        --overscroll-history-navigation=0 \
-        --user-data-dir="$PROFILE" \
-        "$URL" >"$HOME/.kiosk/browser.log" 2>&1
+    build_profile
+    # shellcheck disable=SC2086
+    "$BROWSER" --profile "$PROFILE" --no-remote --new-instance $URLS \
+        >"$HOME/.kiosk/browser.log" 2>&1
     sleep "${KIOSK_RESTART_DELAY:-2}"
 done
