@@ -130,10 +130,13 @@ VERSION              single source of truth for the release version
   the profile (`KIOSK_FRESH_PROFILE=yes`), so "Reset" also clears
   cookies/history, restores the full tab set, and clears any wedged state.
 - **Saved website logins** (`KIOSK_SAVE_LOGINS=yes`, the default): Firefox
-  offers to save passwords for the kiosk sites, and the launch script carries
+  offers to save passwords for the kiosk sites (the "Save login?" popup shows
+  just below the tab strip after signing in), and the launch script carries
   `logins.json` + `key4.db` across profile wipes — so saved logins survive
   browser restarts and admin Resets while everything else stays disposable.
-  Set to `no` to forbid password saving entirely.
+  Set to `no` to forbid password saving entirely. The nav bar is squashed to
+  1px rather than hidden precisely for this: Firefox suppresses the popup if
+  its toolbar anchor is invisible (fixed in v1.8.1).
 - **Tab-strip-only UI**: `userChrome.css` (copied into each profile at launch)
   collapses the address bar, toolbars, window buttons, and the new-tab (+)
   button; `firefox-user.js` merges tabs into the titlebar and openbox renders

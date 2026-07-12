@@ -7,7 +7,6 @@
  * tabs opened by clicking links keep their close button, and new tabs
  * always append after the defaults (see firefox-user.js). */
 
-#nav-bar,
 #PersonalToolbar,
 .titlebar-buttonbox-container,
 .titlebar-spacer,
@@ -16,4 +15,15 @@
 #alltabs-button,
 #firefox-view-button {
     visibility: collapse !important;
+}
+
+/* The nav bar must NOT be visibility:collapse'd: doorhangers (the
+ * "Save login?" popup, permission prompts) anchor to icons inside it and
+ * Firefox never shows a popup whose anchor is invisible. Squashing it to
+ * 1px keeps the anchors "visible", so the popups appear just below the
+ * tab strip, while the bar itself is a single unnoticeable pixel line. */
+#nav-bar {
+    min-height: 1px !important;
+    max-height: 1px !important;
+    overflow: hidden !important;
 }

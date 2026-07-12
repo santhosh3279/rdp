@@ -27,6 +27,10 @@ user_pref("browser.newtabpage.enabled", false);
 // Alt must not reveal the menu bar
 user_pref("ui.key.menuAccessKeyFocuses", false);
 
+// the nav bar is squashed to 1px (not hidden) so save-password popups keep
+// their anchor; make sure keyboard focus can never wander into it
+user_pref("browser.toolbars.keyboard_navigation", false);
+
 // quiet: no update prompts or telemetry
 user_pref("app.update.auto", false);
 user_pref("datareporting.policy.dataSubmissionEnabled", false);

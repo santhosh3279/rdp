@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.8.0 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.8.1 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -301,10 +301,11 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       keep cookies, so users <b>stay signed in to websites</b> across restarts
       and RDP logins. Admin <b>Reset</b> forces a full wipe either way.</td></tr>
   <tr><td><code>KIOSK_SAVE_LOGINS</code></td><td>yes</td>
-      <td><code>yes</code>: Firefox offers to save website passwords, and saved
-      logins survive profile wipes, browser restarts, and admin Resets.
-      <code>no</code>: password saving is disabled and existing saved logins are
-      wiped on the next restart.</td></tr>
+      <td><code>yes</code>: Firefox offers to save website passwords (the
+      “Save login?” popup appears just below the tab strip after signing in),
+      and saved logins survive profile wipes, browser restarts, and admin
+      Resets. <code>no</code>: password saving is disabled and existing saved
+      logins are wiped on the next restart.</td></tr>
   <tr><td><code>KIOSK_RESTART_DELAY</code></td><td>2</td>
       <td>Seconds before relaunching a closed/crashed browser</td></tr>
   <tr><td><code>KIOSK_BG</code></td><td>#1a1a2e</td>
@@ -377,6 +378,12 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <td>Reconnects with a different color depth create a second session. Set
       <code>Policy=Default</code> and <code>KillDisconnected=false</code> in
       <code>/etc/xrdp/sesman.ini</code>, restart xrdp off-hours.</td></tr>
+  <tr><td>The “Save login?” popup never appears when signing in to a website</td>
+      <td>Upgrade to v1.8.1+: older versions hid the toolbar the popup anchors
+      to, which silently suppressed it. After upgrading, press <b>Reset</b> on
+      the session, sign in to the site again, and the popup appears just below
+      the tab strip. If a user once tapped “Never save”, a <b>Reset</b> also
+      clears that choice (already-saved logins are kept).</td></tr>
   <tr><td>Websites ask for their password again after every RDP login</td>
       <td>Website sessions live in cookies, and <code>KIOSK_FRESH_PROFILE=yes</code>
       (the default) wipes them on every browser start. Set
