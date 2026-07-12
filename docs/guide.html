@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.3.1 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.3.2 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -306,6 +306,11 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <td>Snap Firefox cannot read <code>~/.Xauthority</code>. Fixed in v1.3.1
       (the session grants X access via <code>xhost +si:localuser</code>) —
       upgrade, then log the user out and back in.</td></tr>
+  <tr><td>Fonts look wrong / jagged, or text shows as boxes</td>
+      <td>Server installs ship almost no fonts. The installer pulls a proper
+      set since v1.3.2 (Liberation, DejaVu, Noto core + emoji, Indic); for
+      other languages add e.g. <code>fonts-noto-cjk</code>. After installing
+      fonts, press <b>Reset</b> on each session.</td></tr>
   <tr><td>“no active session” on Refresh/Screenshot</td>
       <td>The user has no Xorg process — they disconnected and the session was
       reaped. They simply need to reconnect.</td></tr>

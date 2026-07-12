@@ -29,6 +29,10 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
 apt-get install -yq xrdp xorgxrdp openbox x11vnc xdotool imagemagick \
     x11-xserver-utils xdg-utils novnc python3-venv rsync openssl
+# server installs ship almost no fonts -- without these, websites render in
+# ugly fallbacks and non-Latin text (Indic scripts, emoji, ...) shows as boxes
+apt-get install -yq fontconfig fonts-liberation fonts-dejavu fonts-noto-core \
+    fonts-noto-color-emoji fonts-indic
 apt-get install -yq firefox-esr 2>/dev/null || apt-get install -yq firefox
 
 echo "-- users and groups"
