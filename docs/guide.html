@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>kiosk-admin — Installation &amp; User Guide</title>
+<style>
+  body {
+    font-family: "DejaVu Sans", Helvetica, Arial, sans-serif;
+    font-size: 10.5pt;
+    color: #1a1a2e;
+    line-height: 1.55;
+    margin: 0;
+  }
+  .cover {
+    text-align: center;
+    padding-top: 220px;
+    page-break-after: always;
+  }
+  .cover h1 { font-size: 30pt; margin: 0 0 8px; color: #1a1a2e; }
+  .cover .sub { font-size: 14pt; color: #55557a; margin-bottom: 40px; }
+  .cover .meta { color: #8888a8; font-size: 10pt; }
+  h1 {
+    font-size: 17pt; color: #2d2d5f;
+    border-bottom: 2px solid #4f46e5;
+    padding-bottom: 4px; margin-top: 30px;
+    page-break-after: avoid;
+  }
+  h2 {
+    font-size: 13pt; color: #2d2d5f;
+    margin-top: 22px; page-break-after: avoid;
+  }
+  code, pre {
+    font-family: "DejaVu Sans Mono", Consolas, monospace;
+    font-size: 9pt;
+    background: #f2f2f8;
+  }
+  code { padding: 1px 4px; border-radius: 3px; }
+  pre {
+    padding: 10px 14px;
+    border: 1px solid #ddddee;
+    border-left: 4px solid #4f46e5;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    page-break-inside: avoid;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px 0;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #ccccdd;
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+    font-size: 9.5pt;
+  }
+  th { background: #ececf6; color: #2d2d5f; }
+  .note {
+    background: #fff8e6;
+    border: 1px solid #e8d9a0;
+    border-left: 4px solid #d4a017;
+    padding: 8px 14px;
+    border-radius: 4px;
+    margin: 12px 0;
+    page-break-inside: avoid;
+  }
+  .warn {
+    background: #fdeeee;
+    border: 1px solid #e5b5b5;
+    border-left: 4px solid #c0392b;
+    padding: 8px 14px;
+    border-radius: 4px;
+    margin: 12px 0;
+    page-break-inside: avoid;
+  }
+  ol li, ul li { margin-bottom: 4px; }
+  .toc { line-height: 2; }
+  .toc a { color: #2d2d5f; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>kiosk-admin</h1>
+  <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
+  <div class="meta">Version 1.0.0 &nbsp;&middot;&nbsp; July 2026</div>
+</div>
+
+<h1>1. What is kiosk-admin?</h1>
+<p>
+kiosk-admin turns a single Ubuntu/Debian machine into a multi-user
+<b>RDP kiosk server</b>. Users connect with any standard RDP client
+(Windows <i>Remote Desktop</i>, Remmina, FreeRDP, mobile RDP apps) and receive a
+<b>fullscreen Chromium browser locked to one website</b> — no desktop, no settings,
+no developer tools, no downloads. If the browser crashes or is closed, it restarts
+by itself within seconds.
+</p>
+<p>Administrators manage everything from a web console:</p>
+<ul>
+  <li><b>Live dashboard</b> — every logged-in user with an auto-updating screenshot of their screen</li>
+  <li><b>Screen mirroring &amp; remote control</b> — click any session to watch it live or take over mouse and keyboard (noVNC), with a “view only” toggle</li>
+  <li><b>Hard refresh</b> — send Ctrl+Shift+R to a user's browser remotely</li>
+  <li><b>Browser reset</b> — kill and relaunch a user's browser with a clean profile (clears cookies, history, and any wedged state)</li>
+  <li><b>User management</b> — create kiosk users, set passwords, delete users</li>
+  <li><b>Session logout</b> — terminate any user's RDP session</li>
+</ul>
+
+<h2>Architecture at a glance</h2>
+<pre>RDP clients ──> xrdp ──> per-user Xorg session (:10, :11, ...)
+                              ├──> Chromium --kiosk  (respawn loop = self-healing)
+                              └──> x11vnc on 127.0.0.1:59&lt;display&gt;  (mirroring)
+
+Admin browser ──> kiosk-admin web console (HTTPS, port 8443)
+                     ├── session list, screenshots, user management
+                     └── websocket bridge ──> x11vnc ──> live view &amp; control</pre>
+<p>
+Security model: the web app runs as an unprivileged user; every privileged action
+goes through a single audited root helper (<code>kiosk-ctl</code>) allowed by one
+sudoers line. VNC traffic never leaves localhost — the only network entry points
+are RDP (3389) and the password-protected admin console (8443, TLS).
+</p>
+
+<h1>2. Requirements</h1>
+<table>
+  <tr><th>Item</th><th>Requirement</th></tr>
+  <tr><td>Operating system</td><td>Ubuntu 22.04 / 24.04 or Debian 12 (server or desktop)</td></tr>
+  <tr><td>Access</td><td>Root (sudo) on the target machine</td></tr>
+  <tr><td>Network</td><td>Internet access during install (apt packages); ports 3389 and 8443 reachable by clients</td></tr>
+  <tr><td>Hardware</td><td>Roughly 300–500&nbsp;MB RAM per concurrent kiosk user (Chromium); 2&nbsp;GB + 500&nbsp;MB/user is a safe sizing rule</td></tr>
+</table>
+<p>The installer pulls everything else automatically: xrdp, xorgxrdp, openbox,
+x11vnc, xdotool, ImageMagick, noVNC, Chromium, and a private Python environment.</p>
+
+<h1>3. Installation</h1>
+<ol>
+  <li>Copy this repository to the target machine (git clone, scp, or unpack the release tarball):
+<pre>git clone &lt;repo-url&gt; kiosk-admin
+cd kiosk-admin</pre></li>
+  <li>Run the installer:
+<pre>make install</pre>
+      (equivalent to <code>sudo bash deploy/install.sh</code>)</li>
+  <li>At the end, the installer prints the console address and a
+      <b>generated admin password</b>:
+<pre>== done: kiosk-admin 1.0.0 ==
+   admin console : https://192.168.1.50:8443
+   admin password: Xy9kQ2mP4LcA   (change with: sudo kiosk-admin-passwd)</pre></li>
+</ol>
+<div class="warn"><b>Save the admin password now.</b> It is shown only once.
+You can replace it at any time with <code>sudo kiosk-admin-passwd</code>.</div>
+
+<h2>3.1 First-time setup</h2>
+<ol>
+  <li><b>Set the kiosk website.</b> Edit <code>/etc/kiosk/kiosk.conf</code>:
+<pre>KIOSK_URL="https://your-erp.example.com"</pre>
+      The change applies the next time each user's browser starts — use the
+      console's <b>Reset</b> button to apply it to running sessions immediately.</li>
+  <li><b>Open the firewall</b> (if enabled) for the two service ports only:
+<pre>sudo ufw allow 3389/tcp    # RDP for users
+sudo ufw allow 8443/tcp    # admin console</pre></li>
+  <li><b>Log in to the console</b> at <code>https://&lt;server-ip&gt;:8443</code>.
+      The TLS certificate is self-signed, so your browser shows a one-time
+      warning — accept it (or install real certificates, see §7).</li>
+  <li><b>Create the first user</b> with the <b>+ Add user</b> button
+      (username: lowercase letters, digits, <code>-</code>, <code>_</code>;
+      password: minimum 6 characters).</li>
+  <li><b>Test the user login:</b> from any PC, open an RDP client, connect to the
+      server's address, and sign in with the new username and password. A fullscreen
+      browser on the kiosk URL should appear — and a new session card should show up
+      on the admin dashboard within a few seconds.</li>
+</ol>
+
+<h1>4. Using the admin console</h1>
+
+<h2>4.1 Dashboard</h2>
+<p>The main page shows one card per active RDP session with the username,
+display number, session uptime, a green/red dot for browser health, and a
+screenshot that refreshes automatically every few seconds.</p>
+<table>
+  <tr><th>Button</th><th>What it does</th><th>When to use it</th></tr>
+  <tr><td><b>Refresh</b></td><td>Sends Ctrl+Shift+R to the user's browser
+      (cache-bypassing page reload)</td>
+      <td>The page shows stale data or a deployment just went out</td></tr>
+  <tr><td><b>Reset</b></td><td>Kills the browser; it relaunches within ~2 seconds
+      with a brand-new profile (cookies, history, and session state wiped)</td>
+      <td>The browser is frozen, logged into the wrong account, or misbehaving</td></tr>
+  <tr><td><b>Logout</b></td><td>Terminates the user's whole RDP session</td>
+      <td>Freeing a seat, or ending an abandoned session</td></tr>
+</table>
+
+<h2>4.2 Screen mirroring &amp; remote control</h2>
+<ol>
+  <li>Click a session's screenshot (or open it in a new tab). The live viewer connects
+      in about a second.</li>
+  <li>By default <b>you control the session</b>: your mouse and keyboard act on
+      the user's screen — ideal for guided support.</li>
+  <li>Tick <b>view only</b> in the toolbar to watch without interfering.</li>
+  <li>The viewer toolbar also has <b>Refresh page</b> and <b>Reset browser</b>
+      buttons for the session being viewed.</li>
+</ol>
+<div class="note">The user keeps full control of their own session at all times —
+mirroring is shared, not exclusive. Both sides see the same screen.</div>
+
+<h2>4.3 Managing users</h2>
+<ul>
+  <li><b>Add:</b> “+ Add user” in the header. The account works for RDP immediately.</li>
+  <li><b>Set password:</b> per-user button in the <i>Kiosk users</i> table.</li>
+  <li><b>Delete:</b> per-user button; logs the user out first, then removes the
+      account <b>and its home directory</b>. This cannot be undone.</li>
+  <li>The table also shows who is currently online.</li>
+</ul>
+<div class="note">Only accounts in the <code>kioskusers</code> group are visible
+to (and manageable by) the console. Regular admin accounts on the same machine are
+untouched and still get a normal desktop over RDP.</div>
+
+<h1>5. Upgrading</h1>
+<p>Upgrading <b>is</b> reinstalling — the installer is idempotent:</p>
+<pre>cd kiosk-admin
+git pull                 # or unpack the new release tarball over this directory
+make upgrade             # same as make install</pre>
+<table>
+  <tr><th>Survives every upgrade</th><th>Replaced by the upgrade</th></tr>
+  <tr>
+    <td>
+      <code>/etc/kiosk/kiosk.conf</code> (kiosk URL)<br>
+      Admin password, cookie secret, TLS certs<br>
+      All kiosk user accounts and home dirs<br>
+      <b>Live RDP sessions</b> (xrdp is never restarted)
+    </td>
+    <td>
+      Web app in <code>/opt/kiosk-admin/</code><br>
+      Scripts in <code>/usr/local/bin/</code><br>
+      <code>/etc/xrdp/startwm.sh</code>, Chromium policies<br>
+      systemd unit, Python dependencies
+    </td>
+  </tr>
+</table>
+<p>Only the admin console restarts (1–2 seconds); users notice nothing. Updated
+session scripts take effect at each user's next login. To upgrade an offline
+server: on any machine run <code>make package</code>, copy the resulting
+<code>kiosk-admin-&lt;version&gt;.tar.gz</code> across, unpack, <code>make install</code>.</p>
+
+<h1>6. Uninstalling</h1>
+<pre>make uninstall    # removes app + scripts, KEEPS configs (easy reinstall later)
+make purge        # also deletes /etc/kiosk and /etc/kiosk-admin</pre>
+<p>Kiosk user accounts are never deleted automatically — remove them from the web
+UI beforehand, or afterwards with <code>sudo userdel -r &lt;name&gt;</code>.
+xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</p>
+
+<h1>7. Configuration reference</h1>
+<h2>/etc/kiosk/kiosk.conf</h2>
+<table>
+  <tr><th>Setting</th><th>Default</th><th>Meaning</th></tr>
+  <tr><td><code>KIOSK_URL</code></td><td>https://example.com</td>
+      <td>The site every kiosk user is locked to</td></tr>
+  <tr><td><code>KIOSK_FRESH_PROFILE</code></td><td>yes</td>
+      <td><code>yes</code>: wipe the browser profile on every (re)start —
+      no history, cookies, or crash-restore prompts. <code>no</code>: keep state.</td></tr>
+  <tr><td><code>KIOSK_RESTART_DELAY</code></td><td>2</td>
+      <td>Seconds before relaunching a closed/crashed browser</td></tr>
+  <tr><td><code>KIOSK_BG</code></td><td>#1a1a2e</td>
+      <td>Desktop color visible briefly before the browser starts</td></tr>
+</table>
+<h2>Other locations</h2>
+<table>
+  <tr><th>Path</th><th>Purpose</th></tr>
+  <tr><td><code>/etc/kiosk-admin/admin.passwd</code></td><td>Console password (bcrypt); change via <code>sudo kiosk-admin-passwd</code></td></tr>
+  <tr><td><code>/etc/kiosk-admin/certs/</code></td><td>TLS cert/key. Replace <code>cert.pem</code>/<code>key.pem</code> with real ones, then <code>sudo systemctl restart kiosk-admin</code></td></tr>
+  <tr><td><code>/opt/kiosk-admin/</code></td><td>Installed web app (replaced on upgrade — never edit here)</td></tr>
+  <tr><td><code>~&lt;user&gt;/.kiosk/</code></td><td>Per-user logs: browser.log, x11vnc.log, session.log</td></tr>
+</table>
+<h2>Ports</h2>
+<table>
+  <tr><th>Port</th><th>Service</th><th>Exposure</th></tr>
+  <tr><td>3389/tcp</td><td>xrdp — user logins</td><td>Open to users</td></tr>
+  <tr><td>8443/tcp</td><td>Admin console (HTTPS + WebSocket)</td><td>Open to admins only, ideally restricted by firewall source IP</td></tr>
+  <tr><td>59xx/tcp</td><td>x11vnc per session</td><td>127.0.0.1 only — never exposed</td></tr>
+</table>
+
+<h1>8. Troubleshooting</h1>
+<table>
+  <tr><th>Symptom</th><th>Cause &amp; fix</th></tr>
+  <tr><td>Console unreachable on :8443</td>
+      <td>Check <code>systemctl status kiosk-admin</code> and
+      <code>journalctl -u kiosk-admin -e</code>; confirm the firewall allows 8443.</td></tr>
+  <tr><td>User gets a black/empty RDP screen</td>
+      <td>Browser may be starting; check <code>~&lt;user&gt;/.kiosk/browser.log</code>.
+      Verify Chromium is installed and <code>KIOSK_URL</code> is valid.</td></tr>
+  <tr><td>“no active session” on Refresh/Screenshot</td>
+      <td>The user has no Xorg process — they disconnected and the session was
+      reaped. They simply need to reconnect.</td></tr>
+  <tr><td>Live viewer says “connection lost”</td>
+      <td>Your console login expired (sign in again on the dashboard) or the
+      session ended. x11vnc log: <code>~&lt;user&gt;/.kiosk/x11vnc.log</code>.</td></tr>
+  <tr><td>Duplicate sessions for one user</td>
+      <td>Reconnects with a different color depth create a second session. Set
+      <code>Policy=Default</code> and <code>KillDisconnected=false</code> in
+      <code>/etc/xrdp/sesman.ini</code>, restart xrdp off-hours.</td></tr>
+  <tr><td>Wrong admin password / lost password</td>
+      <td><code>sudo kiosk-admin-passwd</code> — effective immediately.</td></tr>
+  <tr><td>Kiosk URL change not visible</td>
+      <td>The URL is read at browser start. Press <b>Reset</b> on each session
+      (or wait for the users' next login).</td></tr>
+</table>
+
+</body>
+</html>

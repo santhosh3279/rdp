@@ -1,0 +1,18 @@
+[Unit]
+Description=Kiosk Admin web console
+After=network.target
+
+[Service]
+Type=simple
+User=kioskadmin
+Group=kioskadmin
+WorkingDirectory=/opt/kiosk-admin
+ExecStart=/opt/kiosk-admin/venv/bin/uvicorn app.main:app \
+    --host 0.0.0.0 --port 8443 \
+    --ssl-keyfile /etc/kiosk-admin/certs/key.pem \
+    --ssl-certfile /etc/kiosk-admin/certs/cert.pem
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

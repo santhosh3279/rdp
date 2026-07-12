@@ -1,0 +1,27 @@
+#!/bin/bash
+# Set/reset the kiosk-admin web console password.
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+    echo "run as root: sudo kiosk-admin-passwd" >&2
+    exit 1
+fi
+
+read -rsp "New admin password: " PW1; echo
+read -rsp "Repeat: " PW2; echo
+if [[ "$PW1" != "$PW2" ]]; then
+    echo "passwords do not match" >&2
+    exit 1
+fi
+if [[ ${#PW1} -lt 8 ]]; then
+    echo "use at least 8 characters" >&2
+    exit 1
+fi
+
+/opt/kiosk-admin/venv/bin/python -c '
+import sys, bcrypt
+print(bcrypt.hashpw(sys.argv[1].encode(), bcrypt.gensalt()).decode())
+' "$PW1" > /etc/kiosk-admin/admin.passwd
+chown root:kioskadmin /etc/kiosk-admin/admin.passwd
+chmod 640 /etc/kiosk-admin/admin.passwd
+echo "admin password updated (takes effect immediately)"

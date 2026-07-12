@@ -1,0 +1,3 @@
+# kiosk-admin web console: the single privileged command the app may run.
+# kiosk-ctl validates its own arguments (usernames, kioskusers membership).
+kioskadmin ALL=(root) NOPASSWD: /usr/local/bin/kiosk-ctl

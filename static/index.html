@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiosk Admin</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="login-overlay" class="overlay hidden">
+  <form id="login-form" class="panel">
+    <h1>Kiosk Admin</h1>
+    <input type="password" id="login-password" placeholder="Admin password" autocomplete="current-password" required>
+    <button type="submit">Sign in</button>
+    <p id="login-error" class="error"></p>
+  </form>
+</div>
+
+<header>
+  <h1>Kiosk Admin <span id="version" class="muted"></span></h1>
+  <div class="spacer"></div>
+  <button id="btn-adduser" class="primary">+ Add user</button>
+  <button id="btn-logout" class="ghost">Sign out</button>
+</header>
+
+<main>
+  <section>
+    <h2>Active sessions <span id="session-count" class="muted"></span></h2>
+    <div id="sessions" class="grid"></div>
+    <p id="no-sessions" class="muted hidden">No one is logged in over RDP right now.</p>
+  </section>
+
+  <section>
+    <h2>Kiosk users</h2>
+    <table id="users-table">
+      <thead><tr><th>User</th><th>Status</th><th class="right">Actions</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<div id="modal-overlay" class="overlay hidden">
+  <form id="modal-form" class="panel">
+    <h2 id="modal-title">Add user</h2>
+    <input type="text" id="modal-username" placeholder="username (a-z, 0-9, - _)" autocomplete="off">
+    <input type="password" id="modal-password" placeholder="password (min 6 chars)" autocomplete="new-password" required>
+    <div class="row">
+      <button type="submit" class="primary">Save</button>
+      <button type="button" id="modal-cancel" class="ghost">Cancel</button>
+    </div>
+    <p id="modal-error" class="error"></p>
+  </form>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

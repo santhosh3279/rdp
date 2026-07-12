@@ -1,1 +1,145 @@
-# rdp
+# kiosk-admin — RDP browser-kiosk server with a web management console
+
+Turns an Ubuntu/Debian machine into a multi-user RDP kiosk server:
+
+- Users connect over **RDP (port 3389)** and get a **fullscreen Chromium kiosk**
+  locked to one URL — no desktop, no settings, no devtools, no downloads.
+- Admins open the **web console (https://server:8443)** to:
+  - see every logged-in session with **live screenshots**
+  - **mirror and control** any user's screen in the browser (noVNC)
+  - **hard-refresh** a user's page (Ctrl+Shift+R) or **reset** their browser
+    (kill + relaunch with a clean profile)
+  - **add / delete kiosk users** and set passwords
+  - **log out** any session
+
+## Architecture
+
+```
+RDP clients ──► xrdp ──► per-user Xorg session (:10, :11, …)
+                              ├─► Chromium --kiosk (respawn loop = self-healing)
+                              └─► x11vnc on 127.0.0.1:59<display> (mirroring)
+
+Admin browser ──► kiosk-admin (FastAPI, TLS :8443, runs as "kioskadmin")
+                     ├─ /api/sessions        list sessions (Xorg process scan)
+                     ├─ /api/users           add/delete users, set passwords
+                     ├─ /api/sessions/…      refresh / reset / logout / screenshot
+                     └─ /ws/vnc/<user>       websocket bridge → x11vnc → noVNC UI
+```
+
+Every privileged operation goes through **one** root helper, `kiosk-ctl`,
+allowed by **one** sudoers line. The helper validates usernames and refuses to
+touch accounts outside the `kioskusers` group. VNC never leaves localhost; the
+only ways in are RDP (3389) and the authenticated admin console (8443).
+
+## Install
+
+On the target machine (Ubuntu 22.04/24.04 or Debian 12):
+
+```sh
+git clone <this-repo> kiosk-admin && cd kiosk-admin   # or unpack the tarball
+make install
+```
+
+The installer prints the admin console URL and a **generated admin password**
+— save it, or set your own right away:
+
+```sh
+sudo kiosk-admin-passwd
+```
+
+Then set the kiosk URL in `/etc/kiosk/kiosk.conf` (`KIOSK_URL=…`), open
+`https://<server>:8443`, and click **+ Add user**. That user can immediately
+log in with any RDP client and lands in the browser kiosk.
+
+The TLS certificate is self-signed by default (browser warning is expected);
+drop real certs into `/etc/kiosk-admin/certs/{cert.pem,key.pem}` and
+`sudo systemctl restart kiosk-admin` to replace them.
+
+## Upgrade = reinstall
+
+The installer is idempotent — upgrading is just running it again with newer
+sources:
+
+```sh
+git pull            # or unpack the new tarball over this directory
+make upgrade        # same as make install
+```
+
+Guaranteed to survive an upgrade untouched:
+
+| What | Where |
+|---|---|
+| Kiosk URL & behavior | `/etc/kiosk/kiosk.conf` (never overwritten) |
+| Admin password, cookie secret, TLS certs | `/etc/kiosk-admin/` (never overwritten) |
+| Kiosk user accounts & home dirs | normal system users |
+| **Live RDP sessions** | xrdp is never restarted by the installer |
+
+What the upgrade replaces: the web app in `/opt/kiosk-admin/`, the scripts in
+`/usr/local/bin/`, `/etc/xrdp/startwm.sh`, Chromium policies, the systemd
+unit, and python dependencies inside the venv. Only the admin console service
+restarts (a second or two of downtime for admins; users notice nothing).
+Session scripts take effect on each user's *next* login.
+
+To ship a version to an offline machine: bump `VERSION`, run `make package`,
+copy the tarball, unpack, `make install`.
+
+## Uninstall
+
+```sh
+make uninstall   # removes app + scripts, KEEPS configs → reinstall picks them up
+make purge       # also removes /etc/kiosk and /etc/kiosk-admin
+```
+
+Kiosk user accounts are never deleted automatically; remove them per-user
+with `sudo userdel -r <name>` (or from the web UI before uninstalling).
+
+## Repository layout
+
+```
+app/                 FastAPI backend (auth, sessions, users, control, VNC bridge)
+static/              Admin UI (dashboard, noVNC viewer) — no build step
+system/              Target-machine pieces: startwm.sh, kiosk session/browser
+                     scripts, kiosk-ctl root helper, kiosk.conf, Chromium policy
+deploy/              install.sh / uninstall.sh, systemd unit, sudoers,
+                     kiosk-admin-passwd
+docs/                Installation & user guide: kiosk-admin-guide.pdf
+                     (source: guide.html — regenerate with `make pdf`)
+Makefile             install / upgrade / uninstall / purge / package / pdf
+VERSION              single source of truth for the release version
+```
+
+## How the moving parts fit
+
+- **Session start**: xrdp runs `/etc/xrdp/startwm.sh`; members of `kioskusers`
+  are dispatched to `kiosk-session.sh` (everyone else still gets a normal
+  desktop). The session script starts x11vnc on `127.0.0.1:5900+display`,
+  a minimal openbox, then `exec`s the browser loop.
+- **Self-healing browser**: `kiosk-browser.sh` relaunches Chromium whenever it
+  exits. By default each launch wipes the profile (`KIOSK_FRESH_PROFILE=yes`),
+  so "Reset" also clears cookies/history and any wedged state.
+- **Refresh vs Reset**: *Refresh* injects Ctrl+Shift+R via `xdotool` (run as
+  the session user, so X authentication is a non-issue). *Reset* kills the
+  browser and lets the loop respawn it clean.
+- **Mirroring**: the dashboard polls PNG screenshots (ImageMagick `import`);
+  clicking a card opens the noVNC viewer, which speaks RFB over
+  `/ws/vnc/<user>` — a websocket↔TCP bridge inside the app, protected by the
+  same login cookie. A "view only" toggle switches between watching and
+  controlling.
+- **noVNC** comes from the distro package (`/usr/share/novnc`), so it gets
+  security updates via `apt` like everything else.
+
+## Tuning & troubleshooting
+
+- **One session per user**: xrdp's default policy reuses a user's existing
+  session when they reconnect with the same color depth. If you see duplicate
+  sessions, set `Policy=Default` and `KillDisconnected=false` in
+  `/etc/xrdp/sesman.ini` and restart xrdp (off-hours — this drops sessions).
+- **Firewall**: allow 3389 and 8443 only, e.g.
+  `ufw allow 3389/tcp && ufw allow 8443/tcp && ufw enable`.
+- **Logs**: admin app `journalctl -u kiosk-admin`; per-user kiosk logs in
+  `~<user>/.kiosk/{browser.log,x11vnc.log,session.log}`.
+- **Screenshot/refresh fails with "no active session"**: the user has no Xorg
+  process — they disconnected and `KillDisconnected` reaped the session.
+- **Snap Chromium** (Ubuntu): works; policies are installed to all three
+  policy directories (`/etc/chromium`, `/etc/chromium-browser`,
+  `/etc/opt/chrome`) so whichever build runs picks them up.

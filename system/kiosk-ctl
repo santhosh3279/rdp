@@ -1,0 +1,94 @@
+#!/bin/bash
+# kiosk-ctl -- the ONLY privileged entry point for the kiosk-admin web console.
+# Invoked as: sudo kiosk-ctl <action> <user>   (see /etc/sudoers.d/kioskadmin)
+# Passwords for adduser/setpass arrive on stdin, never on the command line.
+set -euo pipefail
+
+KIOSK_GROUP="kioskusers"
+
+usage() {
+    echo "usage: kiosk-ctl refresh|restart-browser|logout|screenshot|adduser|setpass|deluser <user>" >&2
+    exit 2
+}
+
+ACTION="${1:-}"
+TARGET="${2:-}"
+[[ -n "$ACTION" && -n "$TARGET" ]] || usage
+
+[[ "$TARGET" =~ ^[a-z][a-z0-9_-]{0,31}$ ]] || { echo "invalid username" >&2; exit 2; }
+
+is_kiosk_user() {
+    id -nG "$TARGET" 2>/dev/null | tr ' ' '\n' | grep -qx "$KIOSK_GROUP"
+}
+
+require_kiosk_user() {
+    is_kiosk_user || { echo "$TARGET is not a kiosk user" >&2; exit 3; }
+}
+
+home_dir() {
+    getent passwd "$TARGET" | cut -d: -f6
+}
+
+find_display() {
+    local pid
+    pid=$(pgrep -u "$TARGET" -f 'Xorg :[0-9]' | head -n1 || true)
+    [[ -n "$pid" ]] || { echo "no active session for $TARGET" >&2; exit 4; }
+    DISP=$(ps -o args= -p "$pid" | grep -oE ' :[0-9]+' | head -n1 | tr -d ' ')
+    [[ -n "$DISP" ]] || { echo "could not determine display for $TARGET" >&2; exit 4; }
+}
+
+as_user() {
+    runuser -u "$TARGET" -- env DISPLAY="$DISP" XAUTHORITY="$(home_dir)/.Xauthority" "$@"
+}
+
+read_password() {
+    IFS= read -r PASSWORD
+    [[ ${#PASSWORD} -ge 6 ]] || { echo "password too short" >&2; exit 2; }
+}
+
+case "$ACTION" in
+    refresh)
+        require_kiosk_user
+        find_display
+        as_user xdotool key --clearmodifiers ctrl+shift+r
+        ;;
+    restart-browser)
+        require_kiosk_user
+        # kiosk-browser.sh respawns it with a fresh profile
+        pkill -u "$TARGET" -f -- '--kiosk' || true
+        ;;
+    logout)
+        require_kiosk_user
+        loginctl terminate-user "$TARGET" 2>/dev/null || true
+        pkill -u "$TARGET" || true
+        ;;
+    screenshot)
+        require_kiosk_user
+        find_display
+        as_user import -silent -window root -resize 640 png:-
+        ;;
+    adduser)
+        if id "$TARGET" &>/dev/null; then
+            echo "user already exists" >&2
+            exit 5
+        fi
+        read_password
+        useradd -m -s /bin/bash -G "$KIOSK_GROUP" "$TARGET"
+        chpasswd <<< "$TARGET:$PASSWORD"
+        ;;
+    setpass)
+        require_kiosk_user
+        read_password
+        chpasswd <<< "$TARGET:$PASSWORD"
+        ;;
+    deluser)
+        require_kiosk_user
+        loginctl terminate-user "$TARGET" 2>/dev/null || true
+        pkill -KILL -u "$TARGET" 2>/dev/null || true
+        sleep 1
+        userdel -r "$TARGET" 2>/dev/null || userdel "$TARGET"
+        ;;
+    *)
+        usage
+        ;;
+esac

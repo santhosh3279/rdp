@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(KIOSK_ADMIN_CONF=$SCRATCH/devconf KIOSK_ADMIN_HTTP=1 $SCRATCH/venv/bin/python *)",
+      "Bash(wkhtmltopdf --enable-local-file-access --margin-top 18mm --margin-bottom 18mm --margin-left 16mm --margin-right 16mm --footer-center '[page] / [topage]' --footer-font-size 8 --footer-spacing 6 docs/guide.html docs/kiosk-admin-guide.pdf)",
+      "Bash(python3 *)",
+      "Bash(command -v gs convert mutool qpdf)",
+      "Bash(command -v gs)",
+      "Bash(gs -dNOPAUSE -dBATCH -sDEVICE=png16m -r70 -dFirstPage=2 -dLastPage=2 -sOutputFile=/tmp/claude-1000/-home-erpdev-rdp/e9d12323-d87e-40cb-8191-40cd5ac51fd6/scratchpad/page2.png docs/kiosk-admin-guide.pdf)",
+      "Bash(/tmp/claude-1000/-home-erpdev-rdp/e9d12323-d87e-40cb-8191-40cd5ac51fd6/scratchpad/venv/bin/pip install *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+    ]
+  }
+}

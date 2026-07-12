@@ -1,0 +1,145 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #0f0f1e;
+  color: #e2e2ef;
+  min-height: 100vh;
+}
+
+.hidden { display: none !important; }
+.muted { color: #8888a8; font-weight: normal; font-size: .85em; }
+.spacer { flex: 1; }
+.right { text-align: right; }
+.error { color: #f87171; min-height: 1.2em; margin-top: .5rem; font-size: .9em; }
+
+/* ---------- header ---------- */
+
+header {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .75rem 1.5rem;
+  background: #16162a;
+  border-bottom: 1px solid #2a2a45;
+  position: sticky; top: 0; z-index: 5;
+}
+header h1 { font-size: 1.15rem; }
+
+main { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+section { margin-bottom: 2.5rem; }
+section h2 { font-size: 1rem; margin-bottom: 1rem; color: #b8b8d0; }
+
+/* ---------- buttons ---------- */
+
+button {
+  font: inherit; font-size: .85rem;
+  padding: .4rem .8rem;
+  border: 1px solid #3a3a5c;
+  border-radius: 6px;
+  background: #22223c;
+  color: #e2e2ef;
+  cursor: pointer;
+}
+button:hover { background: #2d2d4d; }
+button:disabled { opacity: .5; cursor: wait; }
+button.primary { background: #4f46e5; border-color: #4f46e5; }
+button.primary:hover { background: #6259ee; }
+button.danger { border-color: #7f2d2d; color: #fca5a5; }
+button.danger:hover { background: #3d1a1a; }
+button.ghost { background: transparent; }
+.ghost-link { color: #8888a8; text-decoration: none; }
+.ghost-link:hover { color: #e2e2ef; }
+
+/* ---------- session cards ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #16162a;
+  border: 1px solid #2a2a45;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.shot {
+  display: block; position: relative;
+  aspect-ratio: 16 / 10;
+  background: #000;
+}
+.shot img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.shot-hint {
+  position: absolute; inset: auto 0 0 0;
+  padding: .3rem;
+  text-align: center; font-size: .75rem;
+  color: #fff; background: rgba(20, 20, 40, .75);
+  opacity: 0; transition: opacity .15s;
+}
+.shot:hover .shot-hint { opacity: 1; }
+
+.card .meta {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .6rem .8rem 0;
+}
+.card .actions {
+  display: flex; gap: .5rem;
+  padding: .6rem .8rem .8rem;
+}
+
+.dot { width: 10px; height: 10px; border-radius: 50%; margin-left: auto; }
+.dot.ok { background: #4ade80; }
+.dot.bad { background: #f87171; }
+
+/* ---------- users table ---------- */
+
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: .55rem .8rem; text-align: left; }
+thead th { color: #8888a8; font-size: .8rem; font-weight: 600; border-bottom: 1px solid #2a2a45; }
+tbody tr { border-bottom: 1px solid #1e1e36; }
+tbody tr:hover { background: #16162a; }
+td .badge {
+  font-size: .75rem; padding: .15rem .5rem; border-radius: 99px;
+}
+.badge.on { background: #14351f; color: #4ade80; }
+.badge.off { background: #24243c; color: #8888a8; }
+td button { margin-left: .4rem; }
+
+/* ---------- overlays / modals ---------- */
+
+.overlay {
+  position: fixed; inset: 0; z-index: 10;
+  background: rgba(8, 8, 18, .85);
+  display: flex; align-items: center; justify-content: center;
+}
+.panel {
+  background: #16162a;
+  border: 1px solid #2a2a45;
+  border-radius: 12px;
+  padding: 2rem;
+  width: min(360px, 90vw);
+  display: flex; flex-direction: column; gap: .8rem;
+}
+.panel h1, .panel h2 { font-size: 1.1rem; }
+.panel input {
+  font: inherit;
+  padding: .55rem .7rem;
+  border: 1px solid #3a3a5c;
+  border-radius: 6px;
+  background: #0f0f1e;
+  color: #e2e2ef;
+}
+.panel input:focus { outline: none; border-color: #4f46e5; }
+.panel .row { display: flex; gap: .5rem; }
+.panel .row button { flex: 1; }
+
+/* ---------- toast ---------- */
+
+#toast {
+  position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%);
+  padding: .6rem 1.1rem; border-radius: 8px; z-index: 20;
+  font-size: .9rem; max-width: 90vw;
+}
+.ok-toast { background: #14351f; color: #4ade80; border: 1px solid #1e5230; }
+.error-toast { background: #3d1a1a; color: #fca5a5; border: 1px solid #7f2d2d; }
