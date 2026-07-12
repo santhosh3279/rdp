@@ -45,7 +45,14 @@ restore_logins() {
 }
 
 build_profile() {
-    if [ "${KIOSK_FRESH_PROFILE:-yes}" = "yes" ]; then
+    # admin "Reset" drops this flag to force a wipe even when
+    # KIOSK_FRESH_PROFILE=no (persistent website logins)
+    FRESH="${KIOSK_FRESH_PROFILE:-yes}"
+    if [ -f "$HOME/.kiosk/force-fresh" ]; then
+        FRESH="yes"
+        rm -f "$HOME/.kiosk/force-fresh"
+    fi
+    if [ "$FRESH" = "yes" ]; then
         [ "${KIOSK_SAVE_LOGINS:-yes}" = "yes" ] && save_logins
         rm -rf "$PROFILE"
     fi

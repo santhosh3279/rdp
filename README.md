@@ -145,7 +145,9 @@ VERSION              single source of truth for the release version
   opens by clicking links keep a close button and can be dismissed normally.
 - **Refresh vs Reset**: *Refresh* injects Ctrl+Shift+R via `xdotool` (run as
   the session user, so X authentication is a non-issue). *Reset* kills the
-  browser and lets the loop respawn it clean.
+  browser and lets the loop respawn it clean — it always wipes the profile,
+  even with `KIOSK_FRESH_PROFILE=no` (persistent website logins), via a
+  force-fresh flag dropped by `kiosk-ctl`.
 - **Mirroring**: the dashboard polls PNG screenshots (ImageMagick `import`);
   clicking a card opens the noVNC viewer, which speaks RFB over
   `/ws/vnc/<user>` — a websocket↔TCP bridge inside the app, protected by the

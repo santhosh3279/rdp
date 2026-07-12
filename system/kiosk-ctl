@@ -54,7 +54,10 @@ case "$ACTION" in
         ;;
     restart-browser)
         require_kiosk_user
-        # kiosk-browser.sh respawns it with a fresh profile
+        # admin Reset always means a clean slate: the flag forces a profile
+        # wipe on respawn even when KIOSK_FRESH_PROFILE=no
+        runuser -u "$TARGET" -- mkdir -p "$(home_dir)/.kiosk"
+        runuser -u "$TARGET" -- touch "$(home_dir)/.kiosk/force-fresh"
         pkill -u "$TARGET" -f 'kiosk-profile' || true
         ;;
     logout)

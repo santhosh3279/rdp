@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.3.4 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.4.0 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -264,8 +264,10 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <td>The user's tabs: one URL per tab, space-separated, opened left to
       right. The tab strip is the only browser UI users see.</td></tr>
   <tr><td><code>KIOSK_FRESH_PROFILE</code></td><td>yes</td>
-      <td><code>yes</code>: wipe the browser profile on every (re)start —
-      no history, cookies, or crash-restore prompts. <code>no</code>: keep state.</td></tr>
+      <td><code>yes</code>: wipe the browser profile on every (re)start — users
+      must sign in to websites again after every RDP login. <code>no</code>:
+      keep cookies, so users <b>stay signed in to websites</b> across restarts
+      and RDP logins. Admin <b>Reset</b> forces a full wipe either way.</td></tr>
   <tr><td><code>KIOSK_SAVE_LOGINS</code></td><td>yes</td>
       <td><code>yes</code>: Firefox offers to save website passwords, and saved
       logins survive profile wipes, browser restarts, and admin Resets.
@@ -329,6 +331,12 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       <td>Reconnects with a different color depth create a second session. Set
       <code>Policy=Default</code> and <code>KillDisconnected=false</code> in
       <code>/etc/xrdp/sesman.ini</code>, restart xrdp off-hours.</td></tr>
+  <tr><td>Websites ask for their password again after every RDP login</td>
+      <td>Website sessions live in cookies, and <code>KIOSK_FRESH_PROFILE=yes</code>
+      (the default) wipes them on every browser start. Set
+      <code>KIOSK_FRESH_PROFILE="no"</code> in <code>/etc/kiosk/kiosk.conf</code>
+      to keep users signed in; the <b>Reset</b> button still wipes everything
+      when needed.</td></tr>
   <tr><td>NumLock appears inverted (LED on = keypad acts off)</td>
       <td>The RDP client and the session start out of sync. Since v1.3.4 the
       session pins NumLock on at login (<code>KIOSK_NUMLOCK</code>). If it
