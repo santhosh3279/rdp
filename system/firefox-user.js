@@ -10,6 +10,12 @@ user_pref("browser.tabs.inTitlebar", 1);
 // Ctrl+W on the last tab must not kill the window
 user_pref("browser.tabs.closeWindowWithLastTab", false);
 
+// tabs opened from links always append at the END of the strip, never
+// between the default tabs -- the generated userChrome.css rule relies on
+// the first N positions always being the KIOSK_URLS tabs
+user_pref("browser.tabs.insertRelatedAfterCurrent", false);
+user_pref("browser.tabs.insertAfterCurrent", false);
+
 // no first-run tour, default-browser nag, or crash-restore prompts
 user_pref("browser.aboutwelcome.enabled", false);
 user_pref("browser.shell.checkDefaultBrowser", false);

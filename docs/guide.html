@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.1.0 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.2.0 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -95,9 +95,10 @@ kiosk-admin turns a single Ubuntu/Debian machine into a multi-user
 (Windows <i>Remote Desktop</i>, Remmina, FreeRDP, mobile RDP apps) and receive a
 <b>locked-down browser with a fixed set of tabs — 5 by default</b>. The tab strip
 at the top of the screen is the <b>only</b> visible browser UI: no address bar,
-no menus, no settings, no developer tools, no downloads. Users switch between
-their tabs and nothing more. If the browser crashes or is closed, it restarts by
-itself within seconds.
+no menus, no settings, no developer tools, no downloads. The default tabs are
+permanent (no close button); links that open in a new tab appear <i>after</i>
+them with a normal close button, so users can dismiss those when done. If the
+browser crashes or is closed, it restarts by itself within seconds.
 </p>
 <p>Administrators manage everything from a web console:</p>
 <ul>
@@ -309,9 +310,10 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
   <tr><td>Tab list change not visible</td>
       <td><code>KIOSK_URLS</code> is read at browser start. Press <b>Reset</b> on
       each session (or wait for the users' next login).</td></tr>
-  <tr><td>A user closed some of their tabs</td>
-      <td>Tab close buttons are hidden, but Ctrl+W still works. Press
-      <b>Reset</b> to restore the full default tab set.</td></tr>
+  <tr><td>A user closed some of their default tabs</td>
+      <td>Default tabs have no close button, but Ctrl+W still works. Press
+      <b>Reset</b> to restore the full default tab set. (Tabs opened from links
+      are meant to be closeable — that is by design.)</td></tr>
 </table>
 
 </body>

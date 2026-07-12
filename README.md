@@ -123,12 +123,17 @@ VERSION              single source of truth for the release version
   the profile (`KIOSK_FRESH_PROFILE=yes`), so "Reset" also clears
   cookies/history, restores the full tab set, and clears any wedged state.
 - **Tab-strip-only UI**: `userChrome.css` (copied into each profile at launch)
-  collapses the address bar, toolbars, window buttons, the new-tab (+) button,
-  and per-tab close buttons; `firefox-user.js` merges tabs into the titlebar
-  and openbox renders the window undecorated and maximized — so the tabs are
-  the topmost pixels on the screen and nothing else is reachable. Firefox
-  enterprise policies additionally disable devtools, private browsing,
-  about:config, and password saving.
+  collapses the address bar, toolbars, window buttons, and the new-tab (+)
+  button; `firefox-user.js` merges tabs into the titlebar and openbox renders
+  the window undecorated and maximized — so the tabs are the topmost pixels on
+  the screen and nothing else is reachable. Firefox enterprise policies
+  additionally disable devtools, private browsing, about:config, and password
+  saving.
+- **Permanent vs link-opened tabs**: the launch script appends a generated CSS
+  rule hiding the close button on the first N tab positions (N = the
+  `KIOSK_URLS` count), and prefs force link-opened tabs to always append
+  *after* the defaults — so the default tabs are permanent while tabs the user
+  opens by clicking links keep a close button and can be dismissed normally.
 - **Refresh vs Reset**: *Refresh* injects Ctrl+Shift+R via `xdotool` (run as
   the session user, so X authentication is a non-issue). *Reset* kills the
   browser and lets the loop respawn it clean.

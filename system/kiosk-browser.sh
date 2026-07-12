@@ -36,6 +36,16 @@ build_profile() {
     # upgrades to /etc/kiosk/* take effect at the next browser start
     cp /etc/kiosk/userChrome.css "$PROFILE/chrome/userChrome.css" 2>/dev/null || true
     cp /etc/kiosk/firefox-user.js "$PROFILE/user.js" 2>/dev/null || true
+    # the N default tabs are permanent (no close button); tabs opened from
+    # links land after them (insertAfterCurrent=false) and stay closeable
+    NTABS=$(echo "$URLS" | wc -w)
+    cat >>"$PROFILE/chrome/userChrome.css" <<EOF
+
+/* generated: KIOSK_URLS has $NTABS tabs */
+.tabbrowser-tab:nth-child(-n+$NTABS) .tab-close-button {
+    display: none !important;
+}
+EOF
 }
 
 while true; do

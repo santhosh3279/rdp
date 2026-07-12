@@ -1,7 +1,11 @@
 /* kiosk: the tab strip is the ONLY browser UI visible.
  * Hides: address bar, bookmarks bar, window buttons, new-tab (+) button,
- * tab list dropdown, Firefox View, and per-tab close buttons (users keep
- * their 5 tabs; the admin console's Reset restores a clean set). */
+ * tab list dropdown, and Firefox View.
+ *
+ * Close buttons: kiosk-browser.sh appends a generated rule that hides the
+ * close button on the first N tabs (the defaults from KIOSK_URLS) only —
+ * tabs opened by clicking links keep their close button, and new tabs
+ * always append after the defaults (see firefox-user.js). */
 
 #nav-bar,
 #PersonalToolbar,
@@ -10,7 +14,6 @@
 #tabs-newtab-button,
 #new-tab-button,
 #alltabs-button,
-#firefox-view-button,
-.tab-close-button {
+#firefox-view-button {
     visibility: collapse !important;
 }
