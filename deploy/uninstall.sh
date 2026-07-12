@@ -21,6 +21,7 @@ rm -f /usr/local/bin/kiosk-session.sh /usr/local/bin/kiosk-browser.sh \
 rm -rf /opt/kiosk-admin
 
 rm -f /etc/kiosk/userChrome.css /etc/kiosk/firefox-user.js /etc/kiosk/openbox-rc.xml
+rm -rf /usr/local/share/fonts/kiosk-admin
 for d in /etc/firefox/policies \
          /usr/lib/firefox-esr/distribution \
          /usr/lib/firefox/distribution; do

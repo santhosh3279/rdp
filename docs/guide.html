@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.6.0 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.6.1 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -343,6 +343,11 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       set since v1.3.2 (Liberation, DejaVu, Noto core + emoji, Indic); for
       other languages add e.g. <code>fonts-noto-cjk</code>. After installing
       fonts, press <b>Reset</b> on each session.</td></tr>
+  <tr><td>My site needs a specific font (e.g. a Google Font)</td>
+      <td>Drop the <code>.ttf</code>/<code>.otf</code> into
+      <code>system/fonts/</code> in the repo and re-run the installer — it lands
+      in <code>/usr/local/share/fonts/kiosk-admin/</code>. Fredoka ships
+      bundled since v1.6.1. Reset sessions to apply.</td></tr>
   <tr><td>“no active session” on Refresh/Screenshot</td>
       <td>The user has no Xorg process — they disconnected and the session was
       reaped. They simply need to reconnect.</td></tr>

@@ -34,6 +34,14 @@ apt-get install -yq unclutter-xfixes 2>/dev/null || apt-get install -yq unclutte
 # ugly fallbacks and non-Latin text (Indic scripts, emoji, ...) shows as boxes
 apt-get install -yq fontconfig fonts-liberation fonts-dejavu fonts-noto-core \
     fonts-noto-color-emoji fonts-indic
+
+echo "-- bundled fonts (system/fonts/*)"
+if compgen -G "$SRC/system/fonts/*.ttf" >/dev/null || compgen -G "$SRC/system/fonts/*.otf" >/dev/null; then
+    mkdir -p /usr/local/share/fonts/kiosk-admin
+    cp -f "$SRC"/system/fonts/* /usr/local/share/fonts/kiosk-admin/
+    chmod 644 /usr/local/share/fonts/kiosk-admin/*
+    fc-cache -f /usr/local/share/fonts/kiosk-admin >/dev/null
+fi
 apt-get install -yq firefox-esr 2>/dev/null || apt-get install -yq firefox
 
 echo "-- users and groups"
