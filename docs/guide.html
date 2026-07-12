@@ -142,8 +142,9 @@ x11vnc, xdotool, ImageMagick, noVNC, Firefox, and a private Python environment.<
 <pre>git clone &lt;repo-url&gt; kiosk-admin
 cd kiosk-admin</pre></li>
   <li>Run the installer:
-<pre>make install</pre>
-      (equivalent to <code>sudo bash deploy/install.sh</code>)</li>
+<pre>sudo bash deploy/install.sh</pre>
+      (<code>make install</code> is an equivalent shortcut if <code>make</code> is
+      installed; fresh servers usually don't have it)</li>
   <li>At the end, the installer prints the console address and a
       <b>generated admin password</b>:
 <pre>== done: kiosk-admin 1.0.0 ==
@@ -224,8 +225,8 @@ untouched and still get a normal desktop over RDP.</div>
 <h1>5. Upgrading</h1>
 <p>Upgrading <b>is</b> reinstalling — the installer is idempotent:</p>
 <pre>cd kiosk-admin
-git pull                 # or unpack the new release tarball over this directory
-make upgrade             # same as make install</pre>
+git pull                      # or unpack the new release tarball over this directory
+sudo bash deploy/install.sh   # or: make upgrade</pre>
 <table>
   <tr><th>Survives every upgrade</th><th>Replaced by the upgrade</th></tr>
   <tr>
@@ -249,8 +250,8 @@ server: on any machine run <code>make package</code>, copy the resulting
 <code>kiosk-admin-&lt;version&gt;.tar.gz</code> across, unpack, <code>make install</code>.</p>
 
 <h1>6. Uninstalling</h1>
-<pre>make uninstall    # removes app + scripts, KEEPS configs (easy reinstall later)
-make purge        # also deletes /etc/kiosk and /etc/kiosk-admin</pre>
+<pre>sudo bash deploy/uninstall.sh           # removes app + scripts, KEEPS configs
+sudo bash deploy/uninstall.sh --purge   # also deletes /etc/kiosk and /etc/kiosk-admin</pre>
 <p>Kiosk user accounts are never deleted automatically — remove them from the web
 UI beforehand, or afterwards with <code>sudo userdel -r &lt;name&gt;</code>.
 xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</p>

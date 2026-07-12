@@ -39,8 +39,10 @@ On the target machine (Ubuntu 22.04/24.04 or Debian 12):
 
 ```sh
 git clone <this-repo> kiosk-admin && cd kiosk-admin   # or unpack the tarball
-make install
+sudo bash deploy/install.sh
 ```
+
+(`make install` does the same if you have `make`; fresh servers usually don't.)
 
 The installer prints the admin console URL and a **generated admin password**
 — save it, or set your own right away:
@@ -64,8 +66,8 @@ The installer is idempotent — upgrading is just running it again with newer
 sources:
 
 ```sh
-git pull            # or unpack the new tarball over this directory
-make upgrade        # same as make install
+git pull                      # or unpack the new tarball over this directory
+sudo bash deploy/install.sh   # or: make upgrade
 ```
 
 Guaranteed to survive an upgrade untouched:
@@ -89,9 +91,11 @@ copy the tarball, unpack, `make install`.
 ## Uninstall
 
 ```sh
-make uninstall   # removes app + scripts, KEEPS configs → reinstall picks them up
-make purge       # also removes /etc/kiosk and /etc/kiosk-admin
+sudo bash deploy/uninstall.sh           # removes app + scripts, KEEPS configs
+sudo bash deploy/uninstall.sh --purge   # also removes /etc/kiosk and /etc/kiosk-admin
 ```
+
+(`make uninstall` / `make purge` are equivalent.)
 
 Kiosk user accounts are never deleted automatically; remove them per-user
 with `sudo userdel -r <name>` (or from the web UI before uninstalling).
