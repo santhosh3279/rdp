@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.2.0 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.3.0 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -188,8 +188,8 @@ screenshot that refreshes automatically every few seconds.</p>
       (cache-bypassing page reload)</td>
       <td>The page shows stale data or a deployment just went out</td></tr>
   <tr><td><b>Reset</b></td><td>Kills the browser; it relaunches within ~2 seconds
-      with a brand-new profile (cookies, history, and session state wiped) and the
-      full default tab set restored</td>
+      with a brand-new profile (cookies, history, and session state wiped;
+      saved website passwords are kept) and the full default tab set restored</td>
       <td>The browser is frozen, logged into the wrong account, tabs were lost,
       or the tab list in <code>kiosk.conf</code> changed</td></tr>
   <tr><td><b>Logout</b></td><td>Terminates the user's whole RDP session</td>
@@ -265,6 +265,11 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
   <tr><td><code>KIOSK_FRESH_PROFILE</code></td><td>yes</td>
       <td><code>yes</code>: wipe the browser profile on every (re)start —
       no history, cookies, or crash-restore prompts. <code>no</code>: keep state.</td></tr>
+  <tr><td><code>KIOSK_SAVE_LOGINS</code></td><td>yes</td>
+      <td><code>yes</code>: Firefox offers to save website passwords, and saved
+      logins survive profile wipes, browser restarts, and admin Resets.
+      <code>no</code>: password saving is disabled and existing saved logins are
+      wiped on the next restart.</td></tr>
   <tr><td><code>KIOSK_RESTART_DELAY</code></td><td>2</td>
       <td>Seconds before relaunching a closed/crashed browser</td></tr>
   <tr><td><code>KIOSK_BG</code></td><td>#1a1a2e</td>

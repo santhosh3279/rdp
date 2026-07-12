@@ -27,11 +27,30 @@ if [ -z "$BROWSER" ]; then
     exit 1
 fi
 
+# saved website logins survive profile wipes: logins.json holds the entries,
+# key4.db the key that decrypts them -- both are needed
+LOGIN_STORE="$HOME/.kiosk/logins"
+
+save_logins() {
+    [ -f "$PROFILE/logins.json" ] || return 0
+    mkdir -p "$LOGIN_STORE"
+    cp -f "$PROFILE/logins.json" "$LOGIN_STORE/" 2>/dev/null || true
+    cp -f "$PROFILE/key4.db"     "$LOGIN_STORE/" 2>/dev/null || true
+}
+
+restore_logins() {
+    [ -f "$LOGIN_STORE/logins.json" ] || return 0
+    cp -f "$LOGIN_STORE/logins.json" "$PROFILE/" 2>/dev/null || true
+    cp -f "$LOGIN_STORE/key4.db"     "$PROFILE/" 2>/dev/null || true
+}
+
 build_profile() {
     if [ "${KIOSK_FRESH_PROFILE:-yes}" = "yes" ]; then
+        [ "${KIOSK_SAVE_LOGINS:-yes}" = "yes" ] && save_logins
         rm -rf "$PROFILE"
     fi
     mkdir -p "$PROFILE/chrome"
+    [ "${KIOSK_SAVE_LOGINS:-yes}" = "yes" ] && restore_logins
     # UI skin + prefs are system-managed: refreshed on every launch so
     # upgrades to /etc/kiosk/* take effect at the next browser start
     cp /etc/kiosk/userChrome.css "$PROFILE/chrome/userChrome.css" 2>/dev/null || true
@@ -46,6 +65,11 @@ build_profile() {
     display: none !important;
 }
 EOF
+    if [ "${KIOSK_SAVE_LOGINS:-yes}" = "yes" ]; then
+        echo 'user_pref("signon.rememberSignons", true);' >>"$PROFILE/user.js"
+    else
+        echo 'user_pref("signon.rememberSignons", false);' >>"$PROFILE/user.js"
+    fi
 }
 
 while true; do
