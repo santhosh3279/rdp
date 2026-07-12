@@ -11,7 +11,8 @@
 <div id="login-overlay" class="overlay hidden">
   <form id="login-form" class="panel">
     <h1>Kiosk Admin</h1>
-    <input type="password" id="login-password" placeholder="Admin password" autocomplete="current-password" required>
+    <input type="text" id="login-username" placeholder="Username" value="admin" autocomplete="username">
+    <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" required>
     <button type="submit">Sign in</button>
     <p id="login-error" class="error"></p>
   </form>
@@ -19,8 +20,9 @@
 
 <header>
   <h1>Kiosk Admin <span id="version" class="muted"></span></h1>
+  <span id="whoami" class="muted"></span>
   <div class="spacer"></div>
-  <button id="btn-adduser" class="primary">+ Add user</button>
+  <button id="btn-adduser" class="primary admin-only">+ Add user</button>
   <button id="btn-logout" class="ghost">Sign out</button>
 </header>
 
@@ -31,10 +33,23 @@
     <p id="no-sessions" class="muted hidden">No one is logged in over RDP right now.</p>
   </section>
 
-  <section>
+  <section class="admin-only">
     <h2>Kiosk users</h2>
     <table id="users-table">
       <thead><tr><th>User</th><th>Status</th><th class="right">Actions</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="admin-only">
+    <div class="sec-head">
+      <h2>Console users</h2>
+      <button id="btn-addwebuser">+ Console user</button>
+    </div>
+    <p class="muted">Accounts for this web interface. Role <b>admin</b> = full control;
+       <b>viewer</b> = can only watch &amp; control screens remotely.</p>
+    <table id="webusers-table">
+      <thead><tr><th>User</th><th>Role</th><th class="right">Actions</th></tr></thead>
       <tbody></tbody>
     </table>
   </section>
@@ -45,6 +60,10 @@
     <h2 id="modal-title">Add user</h2>
     <input type="text" id="modal-username" placeholder="username (a-z, 0-9, - _)" autocomplete="off">
     <input type="password" id="modal-password" placeholder="password (min 6 chars)" autocomplete="new-password" required>
+    <select id="modal-role" class="hidden">
+      <option value="viewer">viewer — watch &amp; control screens only</option>
+      <option value="admin">admin — full control</option>
+    </select>
     <div class="row">
       <button type="submit" class="primary">Save</button>
       <button type="button" id="modal-cancel" class="ghost">Cancel</button>

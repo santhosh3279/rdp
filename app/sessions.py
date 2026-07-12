@@ -3,10 +3,12 @@ import grp
 import re
 import subprocess
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 
 from . import auth, config
+from .ctl import check_username, run_ctl
 
+# viewer-accessible: session list, thumbnails (and the VNC bridge in vncws.py)
 router = APIRouter(dependencies=[Depends(auth.require_auth)])
 
 _XORG_RE = re.compile(r"(?:^|/)Xorg\s+:(\d+)")
@@ -56,3 +58,10 @@ def find_session(username: str) -> dict | None:
 @router.get("/api/sessions")
 def get_sessions() -> list[dict]:
     return list_sessions()
+
+
+@router.get("/api/sessions/{username}/screenshot")
+def screenshot(username: str) -> Response:
+    proc = run_ctl(["screenshot", check_username(username)], binary=True, timeout=20)
+    return Response(content=proc.stdout, media_type="image/png",
+                    headers={"Cache-Control": "no-store"})

@@ -13,6 +13,9 @@ Turns an Ubuntu/Debian machine into a multi-user RDP kiosk server:
     (kill + relaunch with a clean profile)
   - **add / delete kiosk users** and set passwords
   - **log out** any session
+  - manage **console accounts with roles**: `admin` (full control) or
+    `viewer` (watch & control screens only — no user management, no
+    refresh/reset/logout; enforced server-side)
 
 ## Architecture
 

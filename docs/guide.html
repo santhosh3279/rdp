@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.5.0 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.6.0 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -222,6 +222,25 @@ mirroring is shared, not exclusive. Both sides see the same screen.</div>
 to (and manageable by) the console. Regular admin accounts on the same machine are
 untouched and still get a normal desktop over RDP.</div>
 
+<h2>4.4 Console users &amp; roles</h2>
+<p>The <i>Console users</i> table manages accounts for the web interface itself
+(not RDP users). Two roles exist:</p>
+<table>
+  <tr><th>Role</th><th>Can</th><th>Cannot</th></tr>
+  <tr><td><b>admin</b></td><td>Everything</td><td>—</td></tr>
+  <tr><td><b>viewer</b></td>
+      <td>See the dashboard and open the live view to watch or control any
+      user's screen</td>
+      <td>Add/delete kiosk or console users, change passwords, refresh/reset
+      browsers, log sessions out</td></tr>
+</table>
+<p>Restrictions are enforced by the server, not just hidden in the UI. The
+built-in <code>admin</code> account cannot be deleted; its password is managed
+on the server with <code>sudo kiosk-admin-passwd</code>. Additional accounts are
+stored in <code>/var/lib/kiosk-admin/webusers.json</code> and survive upgrades.</p>
+<div class="note">Give support staff <b>viewer</b> accounts: they can help
+users hands-on via screen control, but cannot change the system.</div>
+
 <h1>5. Upgrading</h1>
 <p>Upgrading <b>is</b> reinstalling — the installer is idempotent:</p>
 <pre>cd kiosk-admin
@@ -291,7 +310,8 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
 <h2>Other locations</h2>
 <table>
   <tr><th>Path</th><th>Purpose</th></tr>
-  <tr><td><code>/etc/kiosk-admin/admin.passwd</code></td><td>Console password (bcrypt); change via <code>sudo kiosk-admin-passwd</code></td></tr>
+  <tr><td><code>/etc/kiosk-admin/admin.passwd</code></td><td>Built-in admin password (bcrypt); change via <code>sudo kiosk-admin-passwd</code></td></tr>
+  <tr><td><code>/var/lib/kiosk-admin/webusers.json</code></td><td>Additional console accounts (admin/viewer roles), managed from the web UI</td></tr>
   <tr><td><code>/etc/kiosk-admin/certs/</code></td><td>TLS cert/key. Replace <code>cert.pem</code>/<code>key.pem</code> with real ones, then <code>sudo systemctl restart kiosk-admin</code></td></tr>
   <tr><td><code>/opt/kiosk-admin/</code></td><td>Installed web app (replaced on upgrade — never edit here)</td></tr>
   <tr><td><code>~&lt;user&gt;/.kiosk/</code></td><td>Per-user logs: browser.log, x11vnc.log, session.log</td></tr>

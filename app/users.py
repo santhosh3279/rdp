@@ -5,7 +5,7 @@ from . import auth
 from .ctl import check_username, run_ctl
 from .sessions import kiosk_group_members, list_sessions
 
-router = APIRouter(dependencies=[Depends(auth.require_auth)])
+router = APIRouter(dependencies=[Depends(auth.require_admin)])
 
 
 class NewUser(BaseModel):

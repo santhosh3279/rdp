@@ -79,6 +79,14 @@ async function action(act) {
 $("#btn-refresh").addEventListener("click", () => action("refresh"));
 $("#btn-reset").addEventListener("click", () => action("restart-browser"));
 
+// viewers can watch & control the screen but get no admin buttons
+fetch("/api/me").then((r) => r.ok ? r.json() : null).then((who) => {
+  if (who && who.role !== "admin") {
+    $("#btn-refresh").classList.add("hidden");
+    $("#btn-reset").classList.add("hidden");
+  }
+}).catch(() => {});
+
 if (user) {
   connect();
 } else {

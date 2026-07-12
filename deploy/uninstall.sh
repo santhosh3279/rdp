@@ -32,7 +32,7 @@ if [[ -f /etc/xrdp/startwm.sh.orig ]]; then
 fi
 
 if [[ $PURGE -eq 1 ]]; then
-    rm -rf /etc/kiosk-admin /etc/kiosk
+    rm -rf /etc/kiosk-admin /etc/kiosk /var/lib/kiosk-admin
     userdel kioskadmin 2>/dev/null || true
     echo "configs purged. Kiosk user accounts were kept; remove each with:"
     echo "  sudo userdel -r <username>"

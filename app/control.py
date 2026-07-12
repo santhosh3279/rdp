@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 
 from . import auth
 from .ctl import check_username, run_ctl
 
-router = APIRouter(dependencies=[Depends(auth.require_auth)])
+# session controls are admin-only; viewers get watch/control via VNC only
+router = APIRouter(dependencies=[Depends(auth.require_admin)])
 
 
 @router.post("/api/sessions/{username}/refresh")
@@ -24,10 +25,3 @@ def restart_browser(username: str) -> dict:
 def logout_session(username: str) -> dict:
     run_ctl(["logout", check_username(username)], timeout=60)
     return {"ok": True}
-
-
-@router.get("/api/sessions/{username}/screenshot")
-def screenshot(username: str) -> Response:
-    proc = run_ctl(["screenshot", check_username(username)], binary=True, timeout=20)
-    return Response(content=proc.stdout, media_type="image/png",
-                    headers={"Cache-Control": "no-store"})

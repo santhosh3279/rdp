@@ -6,6 +6,10 @@ CONF_DIR = os.environ.get("KIOSK_ADMIN_CONF", "/etc/kiosk-admin")
 SECRET_FILE = os.path.join(CONF_DIR, "secret.key")
 ADMIN_PASSWD_FILE = os.path.join(CONF_DIR, "admin.passwd")
 
+# app-writable state (console user accounts)
+STATE_DIR = os.environ.get("KIOSK_ADMIN_STATE", "/var/lib/kiosk-admin")
+WEBUSERS_FILE = os.path.join(STATE_DIR, "webusers.json")
+
 KIOSK_GROUP = "kioskusers"
 VNC_BASE_PORT = 5900
 

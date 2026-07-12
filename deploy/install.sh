@@ -106,6 +106,15 @@ chown -R root:kioskadmin "$CONF_DIR"
 chmod 750 "$CONF_DIR" "$CONF_DIR/certs"
 chmod 640 "$CONF_DIR/secret.key" "$CONF_DIR/admin.passwd" "$CONF_DIR"/certs/*.pem
 
+echo "-- console user store (preserved on upgrade)"
+mkdir -p /var/lib/kiosk-admin
+if [[ ! -f /var/lib/kiosk-admin/webusers.json ]]; then
+    echo '{}' > /var/lib/kiosk-admin/webusers.json
+fi
+chown -R kioskadmin:kioskadmin /var/lib/kiosk-admin
+chmod 700 /var/lib/kiosk-admin
+chmod 600 /var/lib/kiosk-admin/webusers.json
+
 echo "-- sudoers"
 install -m 440 "$SRC/deploy/sudoers-kioskadmin" /etc/sudoers.d/kioskadmin
 visudo -cf /etc/sudoers.d/kioskadmin >/dev/null
