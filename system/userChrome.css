@@ -21,9 +21,19 @@
  * "Save login?" popup, permission prompts) anchor to icons inside it and
  * Firefox never shows a popup whose anchor is invisible. Squashing it to
  * 1px keeps the anchors "visible", so the popups appear just below the
- * tab strip, while the bar itself is a single unnoticeable pixel line. */
+ * tab strip, while the bar itself is a single unnoticeable pixel line.
+ *
+ * contain:paint  -- the focused urlbar ("megabar") breaks OUT of the
+ *                   toolbar and expands over the page as an address-bar
+ *                   banner; containment clips it inside the 1px strip
+ *                   (overflow:hidden alone can't, the breakout is
+ *                   absolutely positioned).
+ * pointer-events -- taps at the very top screen edge (touch users) must
+ *                   never land on / focus the invisible bar. */
 #nav-bar {
     min-height: 1px !important;
     max-height: 1px !important;
     overflow: hidden !important;
+    contain: layout paint !important;
+    pointer-events: none !important;
 }

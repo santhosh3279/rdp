@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.8.4 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.8.5 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -387,6 +387,13 @@ xrdp itself stays installed; the original <code>startwm.sh</code> is restored.</
       the session, sign in to the site again, and the popup appears just below
       the tab strip. If a user once tapped “Never save”, a <b>Reset</b> also
       clears that choice (already-saved logins are kept).</td></tr>
+  <tr><td>An address bar / “Not secure” banner pops up over the page</td>
+      <td>Upgrade to v1.8.5+ and press <b>Reset</b>. In v1.8.1–v1.8.4 a tap at
+      the very top screen edge (or Ctrl+L) could focus the invisible address
+      bar, which then expands over the page. The “Not secure” chip itself
+      means that tab's URL is <code>http://</code> or has a certificate
+      problem — use <code>https://</code> URLs in <code>KIOSK_URLS</code>
+      where possible.</td></tr>
   <tr><td>Touch user still sees the mouse pointer when touching the screen</td>
       <td>Upgrade to v1.8.4+ and press <b>Reset</b> on the session. Older
       versions hid the pointer only while it was idle — and every touch moves
