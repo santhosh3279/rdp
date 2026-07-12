@@ -145,9 +145,11 @@ VERSION              single source of truth for the release version
   (unclutter), enables Firefox touch input handling (`MOZ_USE_XINPUT2`, touch
   events, pinch zoom), and enlarges the tab strip to finger size. Enabled
   globally (`KIOSK_TOUCH_MODE=yes`) or per user via the "Touch screen"
-  checkbox in the console (= `kiosktouch` group membership; applies at next
-  login). The live viewer has its own "touch screen" checkbox for admins
-  mirroring *from* a touch device (finger-sized toolbar + dot cursor).
+  checkbox in the console or the live viewer's toolbar (= `kiosktouch` group
+  membership). Touch state is re-evaluated on every browser launch, so a
+  toggle applies on Reset — no re-login needed. The live viewer additionally
+  has its own "touch screen" checkbox for admins mirroring *from* a touch
+  device (finger-sized toolbar + dot cursor).
 - **Permanent vs link-opened tabs**: the launch script appends a generated CSS
   rule hiding the close button on the first N tab positions (N = the
   `KIOSK_URLS` count), and prefs force link-opened tabs to always append

@@ -28,7 +28,9 @@
   <strong id="who"></strong>
   <span id="status">connecting&hellip;</span>
   <div class="spacer"></div>
-  <label class="muted"><input type="checkbox" id="touchmode"> touch screen</label>
+  <label id="usertouch-label" class="muted hidden" title="Hide the mouse pointer and enlarge tabs on this user's kiosk">
+    <input type="checkbox" id="usertouch"> user's touch screen</label>
+  <label class="muted" title="Adapt THIS viewer for your own touch device"><input type="checkbox" id="touchmode"> touch screen</label>
   <label class="muted"><input type="checkbox" id="viewonly"> view only</label>
   <button id="btn-refresh" title="Send Ctrl+Shift+R">Refresh page</button>
   <button id="btn-reset" title="Kill &amp; relaunch browser, clean profile">Reset browser</button>

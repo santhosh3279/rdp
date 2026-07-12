@@ -14,9 +14,27 @@ URLS="${KIOSK_URLS:-${KIOSK_URL:-https://example.com}}"
 PROFILE="$HOME/kiosk-profile"
 mkdir -p "$HOME/.kiosk"
 
-# touch mode: global config or per-user "kiosktouch" group membership
-TOUCH="${KIOSK_TOUCH_MODE:-no}"
-id -nG | tr ' ' '\n' | grep -qx kiosktouch && TOUCH="yes"
+USER_NAME="$(id -un)"
+
+# touch mode: global config or per-user "kiosktouch" group membership.
+# Re-evaluated on EVERY browser launch, so the admin console's per-user
+# toggle applies on "Reset browser" -- no re-login needed.
+apply_touch() {
+    TOUCH="${KIOSK_TOUCH_MODE:-no}"
+    id -nG | tr ' ' '\n' | grep -qx kiosktouch && TOUCH="yes"
+    if [ "$TOUCH" = "yes" ]; then
+        # touch input handling in Firefox
+        export MOZ_USE_XINPUT2=1
+        # hide the mouse pointer; unclutter-xfixes syntax first, classic fallback
+        if ! pgrep -u "$USER_NAME" -x unclutter >/dev/null 2>&1; then
+            unclutter --timeout 0 --start-hidden --fork 2>/dev/null \
+                || unclutter -idle 0 -root >/dev/null 2>&1 &
+        fi
+    else
+        unset MOZ_USE_XINPUT2
+        pkill -u "$USER_NAME" -x unclutter 2>/dev/null || true
+    fi
+}
 
 BROWSER=""
 for c in firefox firefox-esr; do
@@ -99,6 +117,7 @@ EOF
 }
 
 while true; do
+    apply_touch
     build_profile
     # shellcheck disable=SC2086
     "$BROWSER" --profile "$PROFILE" --no-remote --new-instance $URLS \

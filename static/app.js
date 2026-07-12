@@ -173,7 +173,7 @@ async function setTouch(username, touch, box) {
     await api(`/api/users/${encodeURIComponent(username)}/touch`, {
       method: "POST", body: JSON.stringify({ touch }),
     });
-    toast(`touch screen ${touch ? "enabled" : "disabled"} for ${username} — applies at their next login`);
+    toast(`touch screen ${touch ? "enabled" : "disabled"} for ${username} — applies on browser Reset or next login`);
     loadUsers();
   } catch (err) {
     toast(err.message, true);

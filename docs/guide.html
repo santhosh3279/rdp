@@ -85,7 +85,7 @@
 <div class="cover">
   <h1>kiosk-admin</h1>
   <div class="sub">RDP Browser-Kiosk Server with Web Management Console<br>Installation &amp; User Guide</div>
-  <div class="meta">Version 1.7.0 &nbsp;&middot;&nbsp; July 2026</div>
+  <div class="meta">Version 1.8.0 &nbsp;&middot;&nbsp; July 2026</div>
 </div>
 
 <h1>1. What is kiosk-admin?</h1>
@@ -208,6 +208,9 @@ screenshot that refreshes automatically every few seconds.</p>
       toolbar controls grow to finger size and a dot marks the remote cursor so
       taps have visible feedback. It defaults to on when a touch device is
       detected and is remembered per browser.</li>
+  <li>Admins also see <b>user's touch screen</b> — the kiosk-side setting for
+      the user being viewed (hidden mouse pointer, finger-sized tabs). Toggle
+      it, then press <b>Reset browser</b> to apply immediately.</li>
   <li>The viewer toolbar also has <b>Refresh page</b> and <b>Reset browser</b>
       buttons for the session being viewed.</li>
 </ol>
@@ -220,8 +223,9 @@ mirroring is shared, not exclusive. Both sides see the same screen.</div>
       Tick <b>Touch screen</b> for users on touch terminals: their session hides
       the mouse pointer and gets finger-sized tabs.</li>
   <li><b>Touch screen toggle:</b> the checkbox in the <i>Kiosk users</i> table
-      switches an existing user between touch and mouse mode — it applies at
-      their next login.</li>
+      (also available in the live viewer's toolbar) switches an existing user
+      between touch and mouse mode — it applies on <b>Reset</b> or at their
+      next login.</li>
   <li><b>Set password:</b> per-user button in the <i>Kiosk users</i> table.</li>
   <li><b>Delete:</b> per-user button; logs the user out first, then removes the
       account <b>and its home directory</b>. This cannot be undone.</li>

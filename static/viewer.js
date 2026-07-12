@@ -99,11 +99,43 @@ $("#btn-refresh").addEventListener("click", () => action("refresh"));
 $("#btn-reset").addEventListener("click", () => action("restart-browser"));
 
 // viewers can watch & control the screen but get no admin buttons
-fetch("/api/me").then((r) => r.ok ? r.json() : null).then((who) => {
-  if (who && who.role !== "admin") {
+fetch("/api/me").then((r) => r.ok ? r.json() : null).then(async (who) => {
+  if (!who) return;
+  if (who.role !== "admin") {
     $("#btn-refresh").classList.add("hidden");
     $("#btn-reset").classList.add("hidden");
+    return;
   }
+  // admins also get a toggle for the USER's touch mode (kiosk-side)
+  try {
+    const users = await fetch("/api/users").then((r) => r.json());
+    const u = users.find((x) => x.username === user);
+    if (!u) return;
+    const box = $("#usertouch");
+    box.checked = u.touch;
+    $("#usertouch-label").classList.remove("hidden");
+    box.addEventListener("change", async () => {
+      box.disabled = true;
+      try {
+        const res = await fetch(`/api/users/${encodeURIComponent(user)}/touch`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ touch: box.checked }),
+        });
+        if (!res.ok) {
+          let msg = res.statusText;
+          try { msg = (await res.json()).detail || msg; } catch (e) { /* ignore */ }
+          throw new Error(msg);
+        }
+        toast(`touch screen ${box.checked ? "enabled" : "disabled"} for ${user} — press "Reset browser" to apply now`);
+      } catch (err) {
+        toast(err.message, true);
+        box.checked = !box.checked;
+      } finally {
+        box.disabled = false;
+      }
+    });
+  } catch (e) { /* ignore */ }
 }).catch(() => {});
 
 if (user) {

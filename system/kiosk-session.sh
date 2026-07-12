@@ -21,18 +21,9 @@ case "${KIOSK_NUMLOCK:-on}" in
     off) numlockx off 2>/dev/null || true ;;
 esac
 
-# touch mode: enabled globally (KIOSK_TOUCH_MODE=yes) or per user via
-# membership in the "kiosktouch" group (the checkbox in the admin console)
-TOUCH="${KIOSK_TOUCH_MODE:-no}"
-id -nG | tr ' ' '\n' | grep -qx kiosktouch && TOUCH="yes"
-if [ "$TOUCH" = "yes" ]; then
-    # touch input handling in Firefox (inherited by the browser loop)
-    export MOZ_USE_XINPUT2=1
-    # hide the mouse pointer on the kiosk screen; unclutter-xfixes syntax
-    # first, classic unclutter as fallback
-    unclutter --timeout 0 --start-hidden --fork 2>/dev/null \
-        || unclutter -idle 0 -root >/dev/null 2>&1 &
-fi
+# touch mode (pointer hiding, touch input, finger-sized tabs) is handled by
+# kiosk-browser.sh on every browser launch, so the admin console's per-user
+# toggle applies on "Reset browser" without needing a re-login
 
 # Display :N is mirrored on localhost port 5900+N; the admin app's websocket
 # bridge is the only way in from outside.
